@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+
+<html lang="th">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>สรุปรายงานการติดตามจัดซื้อจัดจ้าง</title>
+<style>
+:root {
+  --primary: #1a56a0; --primary-dark: #0f3d7a; --primary-light: #e8f0fb;
+  --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-300: #d1d5db;
+  --gray-600: #4b5563; --gray-800: #1f2937; --white: #ffffff;
+  --shadow: 0 1px 3px rgba(0,0,0,0.12);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+  --radius: 8px; --radius-lg: 12px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ===== PAGE LAYOUT =====
+   ใช้ flex column บน html+body เพื่อให้ header sticky ทำงานถูกต้อง
+   โดยไม่ต้องพึ่ง JS วัดความสูง */
+html, body {
+  height: 100%;
+}
+body {
+  font-family: 'Sarabun','Segoe UI',sans-serif;
+  background: var(--gray-100); color: var(--gray-800);
+  display: flex; flex-direction: column;
+}
+
+/* ===== HEADER ===== */
+header {
+  background: linear-gradient(135deg, #0f3d7a, #1a56a0);
+  color: #fff; box-shadow: var(--shadow-lg);
+  position: sticky; top: 0; z-index: 200;
+  flex-shrink: 0; /* ไม่ให้ header หด */
+}
+.header-inner {
+  max-width: 1400px; margin: 0 auto;
+  padding: 13px 22px;
+  display: flex; align-items: center; gap: 13px;
+}
+.header-icon { width: 42px; height: 42px; background: rgba(255,255,255,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.header-text h1 { font-size: 1.08rem; font-weight: 700; }
+.header-text p { font-size: 0.74rem; opacity: 0.8; margin-top: 2px; }
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.refresh-btn { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff; border-radius: 20px; padding: 5px 14px; font-size: 0.76rem; cursor: pointer; display: flex; align-items: center; gap: 5px; font-family: inherit; transition: background 0.2s; white-space: nowrap; }
+.refresh-btn:hover { background: rgba(255,255,255,0.25); }
+.spin-icon { display: inline-block; }
+.spinning { animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.last-update { font-size: 0.7rem; opacity: 0.75; white-space: nowrap; }
+
+/* ===== MAIN SCROLL AREA =====
+   ให้ main เป็น scrollable container แทน body
+   ทำให้ thead sticky top:0 ทำงานถูกต้องภายใน table-scroll */
+main {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ===== CONTAINER ===== */
+.container { max-width: 1400px; margin: 0 auto; padding: 18px 14px; }
+
+/* ===== LOADING ===== */
+.loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,0.88); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 999; gap: 14px; }
+.loading-overlay.hidden { display: none; }
+.spinner { width: 46px; height: 46px; border: 4px solid var(--gray-200); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+.loading-text { font-size: 0.92rem; color: var(--gray-600); }
+
+/* ===== ERROR ===== */
+.error-banner { background: #fef2f2; border: 1px solid #fecaca; border-radius: var(--radius); padding: 12px 16px; margin-bottom: 14px; color: #991b1b; font-size: 0.84rem; line-height: 1.5; }
+.error-banner.hidden { display: none; }
+
+/* ===== STATS ===== */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(155px,1fr)); gap: 12px; margin-bottom: 16px; }
+.stat-card { background: var(--white); border-radius: var(--radius-lg); padding: 15px; box-shadow: var(--shadow); display: flex; align-items: center; gap: 11px; transition: transform 0.15s, box-shadow 0.15s; }
+.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.stat-icon { width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.si-blue{background:#dbeafe} .si-green{background:#d1fae5} .si-yellow{background:#fef3c7} .si-purple{background:#ede9fe} .si-red{background:#fee2e2}
+.stat-value { font-size: 1.4rem; font-weight: 800; color: var(--primary); line-height: 1; }
+.stat-label { font-size: 0.72rem; color: var(--gray-600); margin-top: 3px; }
+
+/* ===== CONTROLS ===== */
+.controls { background: var(--white); border-radius: var(--radius-lg); padding: 12px 15px; box-shadow: var(--shadow); margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 9px; align-items: center; }
+.search-wrap { position: relative; flex: 1; min-width: 190px; }
+.search-wrap svg { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); color: var(--gray-600); pointer-events: none; }
+.search-wrap input { width: 100%; padding: 7px 9px 7px 32px; border: 1.5px solid var(--gray-200); border-radius: var(--radius); font-size: 0.83rem; font-family: inherit; outline: none; transition: border-color 0.2s; }
+.search-wrap input:focus { border-color: var(--primary); }
+select { padding: 7px 26px 7px 9px; border: 1.5px solid var(--gray-200); border-radius: var(--radius); font-size: 0.83rem; font-family: inherit; outline: none; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%234b5563' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 7px center; appearance: none; cursor: pointer; }
+select:focus { border-color: var(--primary); outline: none; }
+.result-count { margin-left: auto; font-size: 0.77rem; color: var(--gray-600); white-space: nowrap; }
+
+/* ===== TABLE ===== */
+.table-wrap { background: var(--white); border-radius: var(--radius-lg); box-shadow: var(--shadow); overflow: hidden; }
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+thead {
+  background: linear-gradient(135deg,#0f3d7a,#1a56a0); color: #fff;
+  position: sticky;
+  top: 0; /* sticky ภายใน main scroll container — ไม่ต้องการ JS */
+  z-index: 10;
+}
+thead th { padding: 11px 12px; text-align: left; font-weight: 600; font-size: 0.78rem; white-space: nowrap; cursor: pointer; user-select: none; }
+thead th:hover { background: rgba(255,255,255,0.1); }
+tbody tr { border-bottom: 1px solid var(--gray-100); transition: background 0.1s; }
+tbody tr:hover { background: var(--primary-light); }
+tbody tr:last-child { border-bottom: none; }
+td { padding: 9px 12px; vertical-align: middle; }
+td.code { font-family: monospace; font-size: 0.73rem; color: var(--gray-600); white-space: nowrap; }
+td.unit { font-weight: 600; color: var(--primary-dark); white-space: nowrap; }
+td.project { max-width: 310px; line-height: 1.4; }
+td.budget { text-align: right; font-weight: 700; white-space: nowrap; color: var(--primary-dark); }
+td.plans { text-align: center; }
+
+/* ===== BADGE ===== */
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 20px; font-size: 0.71rem; font-weight: 700; white-space: nowrap; }
+.badge-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.ba01{background:#f0f9ff;color:#0369a1} .ba01 .badge-dot{background:#0369a1}
+.ba02{background:#f0fdf4;color:#15803d} .ba02 .badge-dot{background:#15803d}
+.ba03{background:#fefce8;color:#a16207} .ba03 .badge-dot{background:#a16207}
+.ba04{background:#fff7ed;color:#c2410c} .ba04 .badge-dot{background:#c2410c}
+.ba05{background:#fdf4ff;color:#7e22ce} .ba05 .badge-dot{background:#7e22ce}
+.ba06{background:#eff6ff;color:#1d4ed8} .ba06 .badge-dot{background:#1d4ed8}
+.ba07{background:#f0fdfa;color:#0f766e} .ba07 .badge-dot{background:#0f766e}
+.ba08{background:#fef9c3;color:#854d0e} .ba08 .badge-dot{background:#854d0e}
+.ba09{background:#fce7f3;color:#9d174d} .ba09 .badge-dot{background:#9d174d}
+.ba10{background:#ecfdf5;color:#065f46} .ba10 .badge-dot{background:#065f46}
+.ba11{background:#d1fae5;color:#064e3b} .ba11 .badge-dot{background:#10b981}
+.banone{background:var(--gray-100);color:var(--gray-600)} .banone .badge-dot{background:var(--gray-300)}
+
+/* ===== PROGRESS ===== */
+.prog-wrap { display: flex; align-items: center; gap: 6px; }
+.prog-bar { flex: 1; height: 5px; background: var(--gray-200); border-radius: 3px; overflow: hidden; min-width: 50px; }
+.prog-fill { height: 100%; border-radius: 3px; }
+.plan-pill { display: inline-block; background: var(--primary-light); color: var(--primary); border-radius: 12px; padding: 2px 8px; font-size: 0.73rem; font-weight: 700; }
+
+.no-results { text-align: center; padding: 48px 20px; color: var(--gray-600); }
+.no-results .icon { font-size: 2.4rem; margin-bottom: 10px; }
+
+footer { text-align: center; padding: 16px; font-size: 0.73rem; color: var(--gray-600); flex-shrink: 0; }
+footer a { color: var(--primary); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+
+@media(max-width:768px){
+  .last-update { display: none; }
+  .stats-grid { grid-template-columns: repeat(2,1fr); }
+  td.project { max-width: 160px; }
+}
+</style>
+</head>
+<body>
+<div class="loading-overlay" id="loadingOverlay">
+<div class="spinner"></div>
+<div class="loading-text" id="loadingText">กำลังดึงข้อมูลจาก Google Apps Script...</div>
+</div>
+<header>
+<div class="header-inner">
+<div class="header-icon">📋</div>
+<div class="header-text">
+<h1>รายงานการติดตามจัดซื้อจัดจ้าง</h1>
+<p>สรุปตามรหัสงบประมาณ — Real-time จาก Google Sheets | ปีงบประมาณ 2570</p>
+</div>
+<div class="header-right">
+<span class="last-update" id="lastUpdate">-</span>
+<button class="refresh-btn" id="refreshBtn" onclick="loadData()">
+<span class="spin-icon" id="spinIcon">🔄</span> รีเฟรช
+      </button>
+</div>
+</div>
+</header>
+<main>
+<div class="container">
+<div class="error-banner hidden" id="errorBanner">⚠️ <span id="errorMsg"></span></div>
+<div class="stats-grid" id="statsGrid"></div>
+<div class="controls">
+<div class="search-wrap">
+<svg fill="none" height="14" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="14"><circle cx="11" cy="11" r="8"></circle><path d="M21 21l-4.35-4.35"></path></svg>
+<input id="searchInput" placeholder="ค้นหา รหัสงบประมาณ / หน่วยงาน / ชื่อโครงการ..." type="text"/>
+</div>
+<select id="statusFilter">
+<option value="">ทุกสถานะ</option>
+<option value="A11">A11 - จัดทำ PO</option>
+<option value="A10">A10 - วันที่ลงนามสัญญา</option>
+<option value="A09">A09 - ประกาศผู้ชนะ</option>
+<option value="A08">A08 - อนุมัติสั่งซื้อสั่งจ้าง</option>
+<option value="A07">A07 - รายงานผลพิจารณา</option>
+<option value="A06">A06 - ประกาศเชิญชวน</option>
+<option value="A05">A05 - ประกาศ TOR</option>
+<option value="A04">A04 - รายงานขอซื้อขอจ้าง</option>
+<option value="A03">A03 - รายงานความต้องการพัสดุ</option>
+<option value="A02">A02 - ประกาศแผน</option>
+<option value="A01">A01 - เห็นชอบแผน</option>
+<option value="none">ยังไม่มีสถานะ</option>
+</select>
+<select id="unitFilter"><option value="">ทุกหน่วยงาน</option></select>
+<select id="sortSelect">
+<option value="code-asc">รหัสงบประมาณ ↑</option>
+<option value="budget-desc">วงเงิน (มาก→น้อย)</option>
+<option value="budget-asc">วงเงิน (น้อย→มาก)</option>
+<option value="status-desc">สถานะ (สูง→ต่ำ)</option>
+<option value="status-asc">สถานะ (ต่ำ→สูง)</option>
+</select>
+<span class="result-count" id="resultCount"></span>
+</div>
+<div class="table-wrap">
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>#</th><th>รหัสงบประมาณ</th><th>หน่วยงาน</th><th>ชื่อโครงการ</th>
+<th style="text-align:right">วงเงินงบประมาณ (บาท)</th>
+<th style="text-align:center">แผนย่อย</th><th>สถานะล่าสุด</th><th>ความคืบหน้า</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+<div class="no-results" id="noResults" style="display:none">
+<div class="icon">🔍</div><p>ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer>
+  ข้อมูลจาก <a href="https://docs.google.com/spreadsheets/d/1pGGgMEfZYYiBqiO3zwOCXof8oZKExi6rIidmddgsVLQ/edit" target="_blank">Google Sheets (PMS)</a>
+  | Hosted on <a href="https://pages.github.com" target="_blank">GitHub Pages</a>
+  | Backend: Google Apps Script
+</footer>
+<script>
+// ============================================================
+// ⚙️ CONFIG — แก้ตรงนี้เมื่อ deploy GAS ใหม่
+// ============================================================
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzxaZ8hVsDggxkLWzg24uOXp89W89lLHlZ7Fy1ooQCsnZVK0EjFs5v0pw3iz_AwbVb1ig/exec';
+// ============================================================
+
+const SC = {
+  A01:{label:'A01 เห็นชอบแผน',        cls:'ba01',rank:1, pct:9  },
+  A02:{label:'A02 ประกาศแผน',          cls:'ba02',rank:2, pct:18 },
+  A03:{label:'A03 รายงานความต้องการ',  cls:'ba03',rank:3, pct:27 },
+  A04:{label:'A04 รายงานขอซื้อขอจ้าง', cls:'ba04',rank:4, pct:36 },
+  A05:{label:'A05 ประกาศ TOR',         cls:'ba05',rank:5, pct:45 },
+  A06:{label:'A06 ประกาศเชิญชวน',      cls:'ba06',rank:6, pct:55 },
+  A07:{label:'A07 รายงานผลพิจารณา',    cls:'ba07',rank:7, pct:64 },
+  A08:{label:'A08 อนุมัติสั่งซื้อ',    cls:'ba08',rank:8, pct:73 },
+  A09:{label:'A09 ประกาศผู้ชนะ',       cls:'ba09',rank:9, pct:82 },
+  A10:{label:'A10 วันที่ลงนามสัญญา',   cls:'ba10',rank:10,pct:91 },
+  A11:{label:'A11 จัดทำ PO',           cls:'ba11',rank:11,pct:100},
+  '':{label:'ยังไม่มีสถานะ',            cls:'banone',rank:0,pct:0 },
+};
+
+function getCode(s){ if(!s)return''; const m=s.match(/^(A\d{2})/); return m?m[1]:''; }
+function getCfg(s){ return SC[getCode(s)]||SC['']; }
+function progColor(p){ return p>=100?'#10b981':p>=73?'#f59e0b':p>=45?'#3b82f6':'#94a3b8'; }
+function fmtB(n){ if(!n&&n!==0)return'-'; return Number(n).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:0}); }
+
+let ALL_DATA=[], sortKey='code-asc';
+
+async function loadData(){
+  const overlay=document.getElementById('loadingOverlay');
+  const errBanner=document.getElementById('errorBanner');
+  const spinIcon=document.getElementById('spinIcon');
+
+  overlay.classList.remove('hidden');
+  errBanner.classList.add('hidden');
+  spinIcon.classList.add('spinning');
+
+  try {
+    const res = await fetch(GAS_URL + '?action=data', { cache: 'no-store' });
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const result = await res.json();
+    if(!result.success) throw new Error(result.error || 'GAS returned error');
+
+    ALL_DATA = result.data || [];
+
+    const units=[...new Set(ALL_DATA.map(d=>d.หน่วยงาน).filter(Boolean))].sort();
+    const unitSel=document.getElementById('unitFilter');
+    const cur=unitSel.value;
+    unitSel.innerHTML='<option value="">ทุกหน่วยงาน</option>';
+    units.forEach(u=>{ const o=document.createElement('option'); o.value=u; o.textContent=u; if(u===cur)o.selected=true; unitSel.appendChild(o); });
+
+    const d=new Date(result.updatedAt);
+    document.getElementById('lastUpdate').textContent='อัปเดต '+d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+    applyFilters();
+  } catch(err){
+    document.getElementById('errorMsg').textContent='ไม่สามารถดึงข้อมูลได้: '+err.message;
+    errBanner.classList.remove('hidden');
+    if(ALL_DATA.length>0) applyFilters();
+  } finally {
+    overlay.classList.add('hidden');
+    spinIcon.classList.remove('spinning');
+  }
+}
+
+function renderStats(data){
+  const total=data.length;
+  const totalB=data.reduce((s,d)=>s+(d.วงเงินงบประมาณทั้งโครงการ||0),0);
+  const done=data.filter(d=>getCode(d.สถานะสูงสุด)==='A11').length;
+  const inProg=data.filter(d=>{const c=getCode(d.สถานะสูงสุด);return c&&c!=='A11';}).length;
+  const none=data.filter(d=>!getCode(d.สถานะสูงสุด)).length;
+  document.getElementById('statsGrid').innerHTML=`
+    <div class="stat-card"><div class="stat-icon si-blue">📁</div><div><div class="stat-value">${total.toLocaleString()}</div><div class="stat-label">โครงการทั้งหมด</div></div></div>
+    <div class="stat-card"><div class="stat-icon si-purple">💰</div><div><div class="stat-value" style="font-size:1rem">${(totalB/1e6).toFixed(2)}M</div><div class="stat-label">วงเงินรวม (บาท)</div></div></div>
+    <div class="stat-card"><div class="stat-icon si-green">✅</div><div><div class="stat-value">${done}</div><div class="stat-label">จัดทำ PO แล้ว (A11)</div></div></div>
+    <div class="stat-card"><div class="stat-icon si-yellow">⏳</div><div><div class="stat-value">${inProg}</div><div class="stat-label">อยู่ระหว่างดำเนินการ</div></div></div>
+    <div class="stat-card"><div class="stat-icon si-red">⚠️</div><div><div class="stat-value">${none}</div><div class="stat-label">ยังไม่มีสถานะ</div></div></div>`;
+}
+
+function renderTable(data){
+  const tbody=document.getElementById('tableBody');
+  const noR=document.getElementById('noResults');
+  document.getElementById('resultCount').textContent=`แสดง ${data.length} รายการ`;
+  if(!data.length){tbody.innerHTML='';noR.style.display='block';return;}
+  noR.style.display='none';
+  tbody.innerHTML=data.map((row,i)=>{
+    const cfg=getCfg(row.สถานะสูงสุด);
+    const pct=cfg.pct; const color=progColor(pct);
+    const code=getCode(row.สถานะสูงสุด);
+    const label=code?`${code} ${row.สถานะสูงสุด.replace(/^A\d{2}\./,'')}`:'ยังไม่มีสถานะ';
+    return `<tr>
+      <td style="color:var(--gray-600);font-size:0.73rem;text-align:center;white-space:nowrap">${i+1}</td>
+      <td class="code">${row.รหัสงบประมาณ||'-'}</td>
+      <td class="unit">${row.หน่วยงาน||'-'}</td>
+      <td class="project">${row.ชื่อโครงการ||'-'}</td>
+      <td class="budget">${fmtB(row.วงเงินงบประมาณทั้งโครงการ)}</td>
+      <td class="plans"><span class="plan-pill">${row.จำนวนแผนย่อย}</span></td>
+      <td><span class="badge ${cfg.cls}"><span class="badge-dot"></span>${label}</span></td>
+      <td style="min-width:105px"><div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${color}"></div></div><span style="font-size:0.68rem;color:var(--gray-600);min-width:26px">${pct}%</span></div></td>
+    </tr>`;
+  }).join('');
+}
+
+function applyFilters(){
+  const search=document.getElementById('searchInput').value.toLowerCase();
+  const statusF=document.getElementById('statusFilter').value;
+  const unitF=document.getElementById('unitFilter').value;
+  const [sk,sd]=sortKey.split('-');
+  let filtered=ALL_DATA.filter(row=>{
+    const ms=!search||(row.รหัสงบประมาณ||'').toLowerCase().includes(search)||(row.หน่วยงาน||'').toLowerCase().includes(search)||(row.ชื่อโครงการ||'').toLowerCase().includes(search);
+    const code=getCode(row.สถานะสูงสุด);
+    const mst=!statusF||(statusF==='none'?!code:code===statusF);
+    const mu=!unitF||row.หน่วยงาน===unitF;
+    return ms&&mst&&mu;
+  });
+  filtered.sort((a,b)=>{
+    let va,vb;
+    if(sk==='code'){va=a.รหัสงบประมาณ||'';vb=b.รหัสงบประมาณ||'';}
+    else if(sk==='budget'){va=a.วงเงินงบประมาณทั้งโครงการ||0;vb=b.วงเงินงบประมาณทั้งโครงการ||0;}
+    else if(sk==='status'){va=getCfg(a.สถานะสูงสุด).rank;vb=getCfg(b.สถานะสูงสุด).rank;}
+    if(va<vb)return sd==='asc'?-1:1;
+    if(va>vb)return sd==='asc'?1:-1;
+    return 0;
+  });
+  renderStats(filtered);
+  renderTable(filtered);
+}
+
+document.getElementById('searchInput').addEventListener('input',applyFilters);
+document.getElementById('statusFilter').addEventListener('change',applyFilters);
+document.getElementById('unitFilter').addEventListener('change',applyFilters);
+document.getElementById('sortSelect').addEventListener('change',e=>{sortKey=e.target.value;applyFilters();});
+
+loadData();
+</script>
+</body>
+</html>
