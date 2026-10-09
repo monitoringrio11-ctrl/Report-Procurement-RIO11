@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+
+<html lang="th">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0" name="viewport"/>
+<meta content="#0f3d7a" name="theme-color"/>
+<title>สรุปรายงานการติดตามจัดซื้อจัดจ้าง</title>
+<style>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --primary: #1a56a0; --primary-dark: #0f3d7a; --primary-light: #e8f0fb;
+  --gray-100: #f3f4f6; --gray-200: #e5e7eb; --gray-300: #d1d5db;
+  --gray-500: #6b7280; --gray-600: #4b5563; --gray-700: #374151;
+  --gray-800: #1f2937; --white: #ffffff;
+  --shadow: 0 1px 4px rgba(0,0,0,0.12);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.14);
+  --radius-sm: 6px; --radius: 10px; --radius-lg: 14px;
+  --hdr: linear-gradient(135deg,#0f3d7a 0%,#1a56a0 100%);
+  --font: 'Sarabun','Segoe UI','Helvetica Neue',Arial,sans-serif;
+  --tr: 0.18s ease;
+}
+html { -webkit-text-size-adjust:100%; }
+html, body { height:100%; }
+body {
+  font-family:var(--font); background:var(--gray-100); color:var(--gray-800);
+  display:-webkit-flex; display:flex;
+  -webkit-flex-direction:column; flex-direction:column;
+  min-height:100%;
+  -webkit-font-smoothing:antialiased;
+}
+button { font-family:var(--font); cursor:pointer; }
+input, select { font-family:var(--font); }
+
+/* ===== HEADER ===== */
+header {
+  background:var(--hdr); color:#fff;
+  box-shadow:var(--shadow-lg);
+  position:-webkit-sticky; position:sticky; top:0; z-index:200;
+  -webkit-flex-shrink:0; flex-shrink:0;
+}
+.header-inner {
+  max-width:1400px; margin:0 auto; padding:12px 16px;
+  display:-webkit-flex; display:flex;
+  -webkit-align-items:center; align-items:center; gap:10px;
+}
+.header-icon { width:40px; height:40px; background:rgba(255,255,255,0.15); border-radius:50%; display:-webkit-flex; display:flex; -webkit-align-items:center; align-items:center; -webkit-justify-content:center; justify-content:center; font-size:17px; -webkit-flex-shrink:0; flex-shrink:0; }
+.header-text { min-width:0; }
+.header-text h1 { font-size:clamp(0.85rem,2.5vw,1.05rem); font-weight:700; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.header-text p { font-size:clamp(0.65rem,1.8vw,0.72rem); opacity:0.8; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.header-right { margin-left:auto; display:-webkit-flex; display:flex; -webkit-align-items:center; align-items:center; gap:6px; -webkit-flex-shrink:0; flex-shrink:0; }
+.hdr-btn {
+  border-radius:20px; padding:6px 12px; font-size:0.74rem; font-weight:600;
+  display:-webkit-inline-flex; display:inline-flex; -webkit-align-items:center; align-items:center; gap:4px;
+  white-space:nowrap; border:1px solid rgba(255,255,255,0.3);
+  transition:background var(--tr); -webkit-tap-highlight-color:transparent; touch-action:manipulation;
+}
+.hdr-btn:active { opacity:0.8; }
+.btn-refresh { background:rgba(255,255,255,0.15); color:#fff; }
+.btn-refresh:hover { background:rgba(255,255,255,0.28); }
+.btn-dash { background:rgba(255,200,0,0.22); color:#fff; border-color:rgba(255,200,0,0.45); }
+.btn-dash:hover { background:rgba(255,200,0,0.38); }
+.spin-icon { display:inline-block; line-height:1; }
+.spinning { -webkit-animation:spin 0.9s linear infinite; animation:spin 0.9s linear infinite; }
+@-webkit-keyframes spin { to { -webkit-transform:rotate(360deg); } }
+@keyframes spin { to { transform:rotate(360deg); } }
+.last-update { font-size:0.68rem; opacity:0.72; white-space:nowrap; }
+
+/* ===== MAIN ===== */
+main { -webkit-flex:1; flex:1; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; }
+.container { max-width:1400px; margin:0 auto; padding:14px 12px 24px; }
+
+/* ===== LOADING ===== */
+.loading-overlay { position:fixed; inset:0; background:rgba(255,255,255,0.9); display:-webkit-flex; display:flex; -webkit-flex-direction:column; flex-direction:column; -webkit-align-items:center; align-items:center; -webkit-justify-content:center; justify-content:center; z-index:999; gap:14px; }
+.loading-overlay.hidden { display:none; }
+.spinner { width:44px; height:44px; border:4px solid var(--gray-200); border-top-color:var(--primary); border-radius:50%; -webkit-animation:spin 0.8s linear infinite; animation:spin 0.8s linear infinite; }
+.loading-text { font-size:0.9rem; color:var(--gray-600); }
+
+/* ===== ERROR ===== */
+.error-banner { background:#fef2f2; border:1px solid #fecaca; border-radius:var(--radius); padding:12px 14px; margin-bottom:12px; color:#991b1b; font-size:0.83rem; line-height:1.55; }
+.error-banner.hidden { display:none; }
+
+/* ===== STATS ===== */
+.stats-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:14px; }
+.stat-card { background:var(--white); border-radius:var(--radius); padding:12px 10px; box-shadow:var(--shadow); display:-webkit-flex; display:flex; -webkit-align-items:center; align-items:center; gap:10px; transition:-webkit-transform var(--tr),box-shadow var(--tr); transition:transform var(--tr),box-shadow var(--tr); }
+.stat-card:hover { -webkit-transform:translateY(-2px); transform:translateY(-2px); box-shadow:var(--shadow-md); }
+.stat-icon { width:38px; height:38px; border-radius:9px; display:-webkit-flex; display:flex; -webkit-align-items:center; align-items:center; -webkit-justify-content:center; justify-content:center; font-size:17px; -webkit-flex-shrink:0; flex-shrink:0; }
+.si-blue{background:#dbeafe} .si-green{background:#d1fae5} .si-yellow{background:#fef3c7} .si-purple{background:#ede9fe} .si-red{background:#fee2e2}
+.stat-value { font-size:1.3rem; font-weight:800; color:var(--primary); line-height:1; }
+.stat-label { font-size:0.68rem; color:var(--gray-600); margin-top:3px; line-height:1.3; }
+
+/* ===== CONTROLS ===== */
+.controls { background:var(--white); border-radius:var(--radius); padding:10px 12px; box-shadow:var(--shadow); margin-bottom:12px; display:-webkit-flex; display:flex; -webkit-flex-wrap:wrap; flex-wrap:wrap; gap:8px; -webkit-align-items:center; align-items:center; }
+.search-wrap { position:relative; -webkit-flex:1; flex:1; min-width:180px; }
+.search-wrap svg { position:absolute; left:9px; top:50%; -webkit-transform:translateY(-50%); transform:translateY(-50%); color:var(--gray-500); pointer-events:none; }
+.search-wrap input { width:100%; padding:8px 10px 8px 32px; border:1.5px solid var(--gray-200); border-radius:var(--radius-sm); font-size:0.83rem; outline:none; transition:border-color var(--tr); background:var(--white); color:var(--gray-800); -webkit-appearance:none; appearance:none; }
+.search-wrap input:focus { border-color:var(--primary); }
+.ctrl-select { padding:8px 28px 8px 10px; border:1.5px solid var(--gray-200); border-radius:var(--radius-sm); font-size:0.83rem; outline:none; background:var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center; -webkit-appearance:none; appearance:none; color:var(--gray-800); transition:border-color var(--tr); cursor:pointer; }
+.ctrl-select:focus { border-color:var(--primary); outline:none; }
+.result-count { margin-left:auto; font-size:0.75rem; color:var(--gray-600); white-space:nowrap; }
+
+/* ===== TABLE ===== */
+.table-wrap { background:var(--white); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; }
+.table-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+table { width:100%; border-collapse:collapse; font-size:0.81rem; }
+thead { background:var(--hdr); color:#fff; position:-webkit-sticky; position:sticky; top:0; z-index:10; }
+thead th { padding:10px 11px; text-align:left; font-weight:600; font-size:0.76rem; white-space:nowrap; cursor:pointer; -webkit-user-select:none; user-select:none; }
+thead th:hover { background:rgba(255,255,255,0.1); }
+tbody tr { border-bottom:1px solid var(--gray-100); transition:background var(--tr); }
+tbody tr:hover { background:var(--primary-light); }
+tbody tr:last-child { border-bottom:none; }
+td { padding:9px 11px; vertical-align:middle; }
+td.code { font-family:'Courier New',Courier,monospace; font-size:0.71rem; color:var(--gray-600); white-space:nowrap; }
+td.unit { font-weight:700; color:var(--primary-dark); white-space:nowrap; }
+td.project { line-height:1.45; }
+td.budget { text-align:right; font-weight:700; white-space:nowrap; color:var(--primary-dark); }
+td.plans { text-align:center; }
+
+/* ===== BADGE ===== */
+.badge { display:-webkit-inline-flex; display:inline-flex; -webkit-align-items:center; align-items:center; gap:4px; padding:3px 8px; border-radius:20px; font-size:0.7rem; font-weight:700; white-space:nowrap; }
+.badge-dot { width:6px; height:6px; border-radius:50%; -webkit-flex-shrink:0; flex-shrink:0; }
+.ba01{background:#f0f9ff;color:#0369a1} .ba01 .badge-dot{background:#0369a1}
+.ba02{background:#f0fdf4;color:#15803d} .ba02 .badge-dot{background:#15803d}
+.ba03{background:#fefce8;color:#a16207} .ba03 .badge-dot{background:#a16207}
+.ba04{background:#fff7ed;color:#c2410c} .ba04 .badge-dot{background:#c2410c}
+.ba05{background:#fdf4ff;color:#7e22ce} .ba05 .badge-dot{background:#7e22ce}
+.ba06{background:#eff6ff;color:#1d4ed8} .ba06 .badge-dot{background:#1d4ed8}
+.ba07{background:#f0fdfa;color:#0f766e} .ba07 .badge-dot{background:#0f766e}
+.ba08{background:#fef9c3;color:#854d0e} .ba08 .badge-dot{background:#854d0e}
+.ba09{background:#fce7f3;color:#9d174d} .ba09 .badge-dot{background:#9d174d}
+.ba10{background:#ecfdf5;color:#065f46} .ba10 .badge-dot{background:#065f46}
+.ba11{background:#d1fae5;color:#064e3b} .ba11 .badge-dot{background:#10b981}
+.banone{background:var(--gray-100);color:var(--gray-600)} .banone .badge-dot{background:var(--gray-300)}
+
+/* ===== PROGRESS ===== */
+.prog-wrap { display:-webkit-flex; display:flex; -webkit-align-items:center; align-items:center; gap:6px; }
+.prog-bar { -webkit-flex:1; flex:1; height:5px; background:var(--gray-200); border-radius:3px; overflow:hidden; min-width:44px; }
+.prog-fill { height:100%; border-radius:3px; }
+.plan-pill { display:inline-block; background:var(--primary-light); color:var(--primary); border-radius:12px; padding:2px 8px; font-size:0.71rem; font-weight:700; }
+.no-results { text-align:center; padding:48px 20px; color:var(--gray-600); }
+.no-results .icon { font-size:2.2rem; margin-bottom:10px; }
+
+/* ===== FOOTER ===== */
+footer { text-align:center; padding:14px 12px; font-size:0.71rem; color:var(--gray-600); -webkit-flex-shrink:0; flex-shrink:0; }
+footer a { color:var(--primary); text-decoration:none; }
+footer a:hover { text-decoration:underline; }
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:500;
+  display:-webkit-flex; display:flex;
+  -webkit-align-items:center; align-items:center;
+  -webkit-justify-content:center; justify-content:center;
+  padding:16px; overflow-y:auto; -webkit-overflow-scrolling:touch;
+}
+.modal-overlay.hidden { display:none; }
+.modal-box {
+  background:var(--white); border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-lg); width:100%; max-width:1200px;
+  margin:auto; overflow:hidden;
+}
+.modal-header {
+  background:var(--hdr); color:#fff; padding:13px 18px;
+  display:-webkit-flex; display:flex;
+  -webkit-align-items:center; align-items:center;
+  -webkit-justify-content:space-between; justify-content:space-between; gap:10px;
+}
+.modal-header h2 { font-size:clamp(0.85rem,2vw,1rem); font-weight:700; }
+.modal-header-right { display:-webkit-flex; display:flex; -webkit-align-items:center; align-items:center; gap:8px; -webkit-flex-shrink:0; flex-shrink:0; }
+.dl-btn { background:#f59e0b; color:#fff; border:none; border-radius:20px; padding:6px 14px; font-size:0.76rem; font-weight:700; display:-webkit-inline-flex; display:inline-flex; -webkit-align-items:center; align-items:center; gap:4px; transition:background var(--tr); -webkit-tap-highlight-color:transparent; }
+.dl-btn:hover { background:#d97706; }
+.dl-btn:disabled { opacity:0.6; cursor:not-allowed; }
+.close-btn { background:rgba(255,255,255,0.2); border:none; color:#fff; width:30px; height:30px; border-radius:50%; font-size:1rem; display:-webkit-flex; display:flex; -webkit-align-items:center; align-items:center; -webkit-justify-content:center; justify-content:center; transition:background var(--tr); -webkit-tap-highlight-color:transparent; }
+.close-btn:hover { background:rgba(255,255,255,0.35); }
+
+/* ===== DASHBOARD SLIDE (19:6 landscape) ===== */
+.dash-slide-wrap {
+  padding:16px;
+  background:#e8edf2;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+/* Fixed 19:6 ratio container */
+.dash-slide-outer {
+  width:100%;
+  max-width:1140px;
+  margin:0 auto;
+  position:relative;
+}
+.dash-slide-outer::before {
+  content:'';
+  display:block;
+  padding-top:56.25%; /* 9/16 = 56.25% */
+}
+.dash-slide {
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg,#0a2d5e 0%,#0f3d7a 30%,#1565c0 70%,#1a56a0 100%);
+  border-radius:12px;
+  overflow:hidden;
+  display:-webkit-flex; display:flex;
+  -webkit-flex-direction:column; flex-direction:column;
+  color:#fff;
+  box-shadow:0 8px 32px rgba(0,0,0,0.25);
+}
+/* Decorative circles */
+.dash-slide::before { content:''; position:absolute; top:-15%; right:-8%; width:35%; padding-top:35%; background:rgba(255,255,255,0.04); border-radius:50%; pointer-events:none; }
+.dash-slide::after  { content:''; position:absolute; bottom:-20%; left:-5%; width:28%; padding-top:28%; background:rgba(255,255,255,0.03); border-radius:50%; pointer-events:none; }
+
+/* Slide Header Bar */
+.ds-header {
+  display:-webkit-flex; display:flex;
+  -webkit-align-items:center; align-items:center;
+  -webkit-justify-content:space-between; justify-content:space-between;
+  padding:2% 3% 1.5%;
+  border-bottom:1px solid rgba(255,255,255,0.12);
+  -webkit-flex-shrink:0; flex-shrink:0;
+  position:relative; z-index:1;
+}
+.ds-title { font-size:clamp(0.75rem,1.6vw,1.15rem); font-weight:800; letter-spacing:0.01em; text-shadow:0 1px 3px rgba(0,0,0,0.3); }
+.ds-subtitle { font-size:clamp(0.55rem,1vw,0.75rem); opacity:0.72; margin-top:0.2em; }
+.ds-logo { font-size:clamp(1.4rem,3vw,2.2rem); opacity:0.85; }
+
+/* Slide Body */
+.ds-body {
+  -webkit-flex:1; flex:1;
+  display:-webkit-flex; display:flex;
+  gap:0;
+  overflow:hidden;
+  position:relative; z-index:1;
+}
+
+/* LEFT COLUMN: KPI + Status bars */
+.ds-left {
+  width:32%;
+  -webkit-flex-shrink:0; flex-shrink:0;
+  display:-webkit-flex; display:flex;
+  -webkit-flex-direction:column; flex-direction:column;
+  padding:1.5% 2% 1.5% 3%;
+  border-right:1px solid rgba(255,255,255,0.1);
+  gap:1%;
+}
+
+/* KPI Grid */
+.ds-kpi-grid {
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:1.5%;
+}
+.ds-kpi {
+  background:rgba(255,255,255,0.12);
+  border:1px solid rgba(255,255,255,0.18);
+  border-radius:8px;
+  padding:3% 4%;
+  text-align:center;
+}
+.ds-kpi-val { font-size:clamp(0.9rem,2vw,1.5rem); font-weight:900; line-height:1; text-shadow:0 1px 3px rgba(0,0,0,0.2); }
+.ds-kpi-lbl { font-size:clamp(0.5rem,0.85vw,0.65rem); opacity:0.78; margin-top:0.3em; line-height:1.2; }
+
+/* Status bars */
+.ds-status-title { font-size:clamp(0.52rem,0.9vw,0.68rem); font-weight:700; opacity:0.8; text-transform:uppercase; letter-spacing:0.06em; margin-top:1%; }
+.ds-sbars { display:-webkit-flex; display:flex; -webkit-flex-direction:column; flex-direction:column; gap:0.8%; -webkit-flex:1; flex:1; -webkit-justify-content:center; justify-content:center; }
+.ds-sbar-row { display:-webkit-flex; display:flex; -webkit-align-items:center; align-items:center; gap:2%; }
+.ds-sbar-lbl { font-size:clamp(0.44rem,0.78vw,0.6rem); min-width:38%; opacity:0.88; line-height:1.2; -webkit-flex-shrink:0; flex-shrink:0; }
+.ds-sbar-track { -webkit-flex:1; flex:1; height:clamp(6px,1vw,11px); background:rgba(255,255,255,0.15); border-radius:4px; overflow:hidden; }
+.ds-sbar-fill { height:100%; border-radius:4px; }
+.ds-sbar-num { font-size:clamp(0.44rem,0.78vw,0.6rem); font-weight:800; min-width:12%; text-align:right; opacity:0.9; -webkit-flex-shrink:0; flex-shrink:0; }
+
+/* RIGHT COLUMN: Unit table */
+.ds-right {
+  -webkit-flex:1; flex:1;
+  display:-webkit-flex; display:flex;
+  -webkit-flex-direction:column; flex-direction:column;
+  padding:1.5% 3% 1.5% 2%;
+  overflow:hidden;
+}
+.ds-unit-title { font-size:clamp(0.52rem,0.9vw,0.68rem); font-weight:700; opacity:0.8; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.8%; -webkit-flex-shrink:0; flex-shrink:0; }
+
+/* Unit table */
+.ds-unit-tbl { width:100%; border-collapse:collapse; font-size:clamp(0.42rem,0.72vw,0.56rem); -webkit-flex:1; flex:1; }
+.ds-unit-tbl thead th {
+  text-align:left; padding:0.6% 0.9%;
+  opacity:0.65; font-weight:700; font-size:clamp(0.4rem,0.65vw,0.5rem);
+  border-bottom:1px solid rgba(255,255,255,0.2);
+  white-space:nowrap; background:rgba(0,0,0,0.1);
+}
+.ds-unit-tbl thead th.c { text-align:center; }
+.ds-unit-tbl tbody tr { border-bottom:1px solid rgba(255,255,255,0.06); }
+.ds-unit-tbl tbody tr:last-child { border-bottom:none; }
+.ds-unit-tbl tbody tr:hover { background:rgba(255,255,255,0.06); }
+.ds-unit-tbl td { padding:0.6% 0.9%; vertical-align:middle; }
+.ds-unit-tbl td.un { font-weight:700; font-size:clamp(0.3rem,0.58vw,0.44rem); }
+.ds-unit-tbl td.bud { text-align:right; font-weight:700; white-space:nowrap; }
+.ds-unit-tbl td.c { text-align:center; }
+
+/* Status count chips in table */
+.ds-chip {
+  display:inline-block;
+  padding:0.2em 0.6em;
+  border-radius:20px;
+  font-size:clamp(0.38rem,0.65vw,0.5rem);
+  font-weight:800;
+  margin:0.1em 0.15em;
+  white-space:nowrap;
+  line-height:1.4;
+}
+
+/* Slide Footer */
+.ds-footer {
+  display:-webkit-flex; display:flex;
+  -webkit-align-items:center; align-items:center;
+  -webkit-justify-content:space-between; justify-content:space-between;
+  padding:1% 3%;
+  border-top:1px solid rgba(255,255,255,0.1);
+  font-size:clamp(0.44rem,0.72vw,0.56rem);
+  opacity:0.55;
+  -webkit-flex-shrink:0; flex-shrink:0;
+  position:relative; z-index:1;
+}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:900px){
+  .stats-grid { grid-template-columns:repeat(3,1fr); }
+}
+@media(max-width:640px){
+  .header-inner { padding:10px 12px; gap:8px; }
+  .header-icon { width:34px; height:34px; font-size:15px; }
+  .header-text h1 { font-size:0.82rem; }
+  .header-text p { display:none; }
+  .last-update { display:none; }
+  .hdr-btn { padding:5px 9px; font-size:0.7rem; }
+  .hdr-btn .btn-label { display:none; }
+  .stats-grid { grid-template-columns:repeat(2,1fr); gap:8px; }
+  .stat-card { padding:10px 8px; gap:8px; }
+  .stat-icon { width:32px; height:32px; font-size:14px; }
+  .stat-value { font-size:1.1rem; }
+  .stat-label { font-size:0.63rem; }
+  .controls { padding:8px 10px; gap:7px; }
+  .search-wrap { min-width:100%; -webkit-order:-1; order:-1; }
+  .ctrl-select { font-size:0.78rem; padding:7px 24px 7px 8px; }
+  td.project { max-width:160px; }
+  td.code { font-size:0.67rem; }
+  thead th { padding:8px 9px; font-size:0.7rem; }
+  td { padding:8px 9px; }
+  .modal-overlay { padding:8px; }
+  .modal-header { padding:11px 12px; }
+  .modal-header h2 { font-size:0.85rem; }
+  .dl-btn { padding:5px 10px; font-size:0.72rem; }
+  .dash-slide-wrap { padding:10px; }
+  /* On very small screens, allow horizontal scroll for slide */
+  .dash-slide-outer { min-width:600px; }
+}
+@media(max-width:380px){
+  .stats-grid { grid-template-columns:repeat(2,1fr); }
+}
+@media(prefers-color-scheme:dark){
+  :root { --gray-100:#1f2937; --gray-200:#374151; --gray-300:#4b5563; --gray-500:#9ca3af; --gray-600:#d1d5db; --gray-700:#e5e7eb; --gray-800:#f9fafb; --white:#111827; --primary-light:#1e3a5f; }
+  body { background:#111827; }
+  .search-wrap input,.ctrl-select { background:#1f2937; color:#f9fafb; border-color:#374151; }
+  .stat-card,.controls,.table-wrap,.modal-box { background:#1f2937; }
+  tbody tr:hover { background:#1e3a5f; }
+  .dash-slide-wrap { background:#0f172a; }
+}
+@media print {
+  header,.controls,footer,.modal-overlay { display:none !important; }
+  main { overflow:visible; }
+  .table-wrap { box-shadow:none; }
+}
+</style>
+</head>
+<body>
+<!-- LOADING -->
+<div class="loading-overlay" id="loadingOverlay">
+<div class="spinner"></div>
+<div class="loading-text">กำลังดึงข้อมูล...</div>
+</div>
+<!-- DASHBOARD MODAL -->
+<div aria-label="แดชบอร์ดสรุป" aria-modal="true" class="modal-overlay hidden" id="dashModal" role="dialog">
+<div class="modal-box">
+<div class="modal-header">
+<h2>📊 แดชบอร์ดสรุปรายหน่วยงาน — สไตล์ PPT (16:9)</h2>
+<div class="modal-header-right">
+<button class="dl-btn" id="dlBtn" onclick="downloadDashboard()">⬇️ ดาวน์โหลด JPEG</button>
+<button aria-label="ปิด" class="close-btn" onclick="closeDashboard()">✕</button>
+</div>
+</div>
+<!-- SLIDE AREA -->
+<div class="dash-slide-wrap" id="slideCapture">
+<div class="dash-slide-outer">
+<div class="dash-slide" id="dashSlide">
+<!-- Header -->
+<div class="ds-header">
+<div>
+<div class="ds-title">รายงานการติดตามจัดซื้อจัดจ้าง ปีงบประมาณ 2570</div>
+<div class="ds-subtitle" id="dsSubtitle">สรุปรายหน่วยงาน</div>
+</div>
+<div class="ds-logo">📋</div>
+</div>
+<!-- Body -->
+<div class="ds-body">
+<!-- LEFT -->
+<div class="ds-left">
+<div class="ds-kpi-grid" id="dsKpi"></div>
+<div class="ds-status-title">📈 สถานะโครงการ</div>
+<div class="ds-sbars" id="dsSbars"></div>
+</div>
+<!-- RIGHT -->
+<div class="ds-right">
+<div class="ds-unit-title">🏢 สรุปรายหน่วยงาน — จำนวนโครงการตามสถานะ</div>
+<table class="ds-unit-tbl">
+<thead id="dsUnitHead"></thead>
+<tbody id="dsUnitBody"></tbody>
+</table>
+</div>
+</div>
+<!-- Footer -->
+<div class="ds-footer">
+<span>ข้อมูลจากระบบ PMS | Google Sheets</span>
+<span id="dsFooterDate">—</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- HEADER -->
+<header>
+<div class="header-inner">
+<div aria-hidden="true" class="header-icon">📋</div>
+<div class="header-text">
+<h1>รายงานการติดตามจัดซื้อจัดจ้าง</h1>
+<p>สรุปตามรหัสงบประมาณ — Real-time จาก Google Sheets | ปีงบประมาณ 2570</p>
+</div>
+<div class="header-right">
+<span aria-live="polite" class="last-update" id="lastUpdate">-</span>
+<button aria-label="เปิดแดชบอร์ดสรุป" class="hdr-btn btn-dash" onclick="openDashboard()">
+        📊 <span class="btn-label">สรุปแดชบอร์ด</span>
+</button>
+<button aria-label="รีเฟรชข้อมูล" class="hdr-btn btn-refresh" id="refreshBtn" onclick="loadData()">
+<span class="spin-icon" id="spinIcon">🔄</span>
+<span class="btn-label">รีเฟรช</span>
+</button>
+</div>
+</div>
+</header>
+<!-- MAIN -->
+<main>
+<div class="container">
+<div class="error-banner hidden" id="errorBanner" role="alert">⚠️ <span id="errorMsg"></span></div>
+<div class="stats-grid" id="statsGrid"></div>
+<div class="controls" role="search">
+<div class="search-wrap">
+<svg aria-hidden="true" fill="none" height="14" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="14"><circle cx="11" cy="11" r="8"></circle><path d="M21 21l-4.35-4.35"></path></svg>
+<input aria-label="ค้นหา" autocomplete="off" autocorrect="off" id="searchInput" placeholder="ค้นหา รหัสงบประมาณ / หน่วยงาน / ชื่อโครงการ..." spellcheck="false" type="search"/>
+</div>
+<select aria-label="กรองตามสถานะ" class="ctrl-select" id="statusFilter">
+<option value="">ทุกสถานะ</option>
+<option value="A11">A11 - จัดทำ PO</option>
+<option value="A10">A10 - วันที่ลงนามสัญญา</option>
+<option value="A09">A09 - ประกาศผู้ชนะ</option>
+<option value="A08">A08 - อนุมัติสั่งซื้อสั่งจ้าง</option>
+<option value="A07">A07 - รายงานผลพิจารณา</option>
+<option value="A06">A06 - ประกาศเชิญชวน</option>
+<option value="A05">A05 - ประกาศ TOR</option>
+<option value="A04">A04 - รายงานขอซื้อขอจ้าง</option>
+<option value="A03">A03 - รายงานความต้องการพัสดุ</option>
+<option value="A02">A02 - ประกาศแผน</option>
+<option value="A01">A01 - เห็นชอบแผน</option>
+<option value="none">ยังไม่เริ่มดำเนินการ</option>
+</select>
+<select aria-label="กรองตามหน่วยงาน" class="ctrl-select" id="unitFilter"><option value="">ทุกหน่วยงาน</option></select>
+<select aria-label="เรียงลำดับ" class="ctrl-select" id="sortSelect">
+<option value="code-asc">รหัสงบประมาณ ↑</option>
+<option value="budget-desc">วงเงิน (มาก→น้อย)</option>
+<option value="budget-asc">วงเงิน (น้อย→มาก)</option>
+<option value="status-desc">สถานะ (สูง→ต่ำ)</option>
+<option value="status-asc">สถานะ (ต่ำ→สูง)</option>
+</select>
+<span aria-live="polite" class="result-count" id="resultCount"></span>
+</div>
+<div aria-label="ตารางข้อมูลโครงการ" class="table-wrap" role="region">
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th scope="col">#</th>
+<th scope="col">รหัสงบประมาณ</th>
+<th scope="col">หน่วยงาน</th>
+<th scope="col">ชื่อโครงการ</th>
+<th scope="col" style="text-align:right">วงเงินงบประมาณ (บาท)</th>
+<th scope="col" style="text-align:center">แผนย่อย</th>
+<th scope="col">สถานะล่าสุด</th>
+<th scope="col">ความคืบหน้า</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+<div class="no-results" id="noResults" role="status" style="display:none">
+<div aria-hidden="true" class="icon">🔍</div>
+<p>ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer>
+  ข้อมูลจาก <a href="https://docs.google.com/spreadsheets/d/1pGGgMEfZYYiBqiO3zwOCXof8oZKExi6rIidmddgsVLQ/edit" rel="noopener noreferrer" target="_blank">Google Sheets (PMS)</a>
+  | <a href="https://pages.github.com" rel="noopener noreferrer" target="_blank">GitHub Pages</a>
+  | Backend: Google Apps Script
+</footer>
+<script crossorigin="anonymous" referrerpolicy="no-referrer" src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+// ============================================================
+// ⚙️ CONFIG — แก้ตรงนี้เมื่อ deploy GAS ใหม่
+// ============================================================
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbzxaZ8hVsDggxkLWzg24uOXp89W89lLHlZ7Fy1ooQCsnZVK0EjFs5v0pw3iz_AwbVb1ig/exec';
+// ============================================================
+
+// Status config — A01-A11 + ยังไม่เริ่มดำเนินการ
+var SC = {
+  A01:{label:'A01 เห็นชอบแผน',         short:'A01',cls:'ba01',rank:1, pct:9,  color:'#0369a1',bg:'rgba(3,105,161,0.85)'},
+  A02:{label:'A02 ประกาศแผน',           short:'A02',cls:'ba02',rank:2, pct:18, color:'#15803d',bg:'rgba(21,128,61,0.85)'},
+  A03:{label:'A03 รายงานความต้องการ',   short:'A03',cls:'ba03',rank:3, pct:27, color:'#a16207',bg:'rgba(161,98,7,0.85)'},
+  A04:{label:'A04 รายงานขอซื้อขอจ้าง', short:'A04',cls:'ba04',rank:4, pct:36, color:'#c2410c',bg:'rgba(194,65,12,0.85)'},
+  A05:{label:'A05 ประกาศ TOR',          short:'A05',cls:'ba05',rank:5, pct:45, color:'#7e22ce',bg:'rgba(126,34,206,0.85)'},
+  A06:{label:'A06 ประกาศเชิญชวน',       short:'A06',cls:'ba06',rank:6, pct:55, color:'#1d4ed8',bg:'rgba(29,78,216,0.85)'},
+  A07:{label:'A07 รายงานผลพิจารณา',     short:'A07',cls:'ba07',rank:7, pct:64, color:'#0f766e',bg:'rgba(15,118,110,0.85)'},
+  A08:{label:'A08 อนุมัติสั่งซื้อ',     short:'A08',cls:'ba08',rank:8, pct:73, color:'#854d0e',bg:'rgba(133,77,14,0.85)'},
+  A09:{label:'A09 ประกาศผู้ชนะ',        short:'A09',cls:'ba09',rank:9, pct:82, color:'#9d174d',bg:'rgba(157,23,77,0.85)'},
+  A10:{label:'A10 วันที่ลงนามสัญญา',    short:'A10',cls:'ba10',rank:10,pct:91, color:'#065f46',bg:'rgba(6,95,70,0.85)'},
+  A11:{label:'A11 จัดทำ PO',            short:'A11',cls:'ba11',rank:11,pct:100,color:'#10b981',bg:'rgba(16,185,129,0.85)'},
+  '':{label:'ยังไม่เริ่มดำเนินการ',      short:'—',  cls:'banone',rank:0,pct:0, color:'#9ca3af',bg:'rgba(156,163,175,0.7)'}
+};
+var STATUS_CODES = ['A11','A10','A09','A08','A07','A06','A05','A04','A03','A02','A01',''];
+
+function getCode(s){ if(!s)return''; var m=s.match(/^(A\d{2})/); return m?m[1]:''; }
+function getCfg(s){ return SC[getCode(s)]||SC['']; }
+function progColor(p){ return p>=100?'#10b981':p>=73?'#f59e0b':p>=45?'#3b82f6':'#94a3b8'; }
+function fmtB(n){ if(!n&&n!==0)return'-'; return Number(n).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:0}); }
+function fmtM(n){ return (n/1e6).toFixed(2)+' M'; }
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+var ALL_DATA=[], sortKey='code-asc';
+
+// ===== LOAD DATA =====
+function loadData(){
+  var overlay=document.getElementById('loadingOverlay');
+  var errBanner=document.getElementById('errorBanner');
+  var spinIcon=document.getElementById('spinIcon');
+  overlay.classList.remove('hidden');
+  errBanner.classList.add('hidden');
+  spinIcon.classList.add('spinning');
+  fetch(GAS_URL+'?action=data',{cache:'no-store'})
+    .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+    .then(function(result){
+      if(!result.success) throw new Error(result.error||'GAS error');
+      ALL_DATA=result.data||[];
+      var units=ALL_DATA.map(function(d){return d.หน่วยงาน;}).filter(Boolean);
+      units=units.filter(function(v,i,a){return a.indexOf(v)===i;}).sort();
+      var unitSel=document.getElementById('unitFilter');
+      var cur=unitSel.value;
+      unitSel.innerHTML='<option value="">ทุกหน่วยงาน</option>';
+      units.forEach(function(u){ var o=document.createElement('option'); o.value=u; o.textContent=u; if(u===cur)o.selected=true; unitSel.appendChild(o); });
+      var d=new Date(result.updatedAt);
+      document.getElementById('lastUpdate').textContent='อัปเดต '+d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+      applyFilters();
+    })
+    .catch(function(err){
+      document.getElementById('errorMsg').textContent='ไม่สามารถดึงข้อมูลได้: '+err.message;
+      errBanner.classList.remove('hidden');
+      if(ALL_DATA.length>0) applyFilters();
+    })
+    .finally(function(){ overlay.classList.add('hidden'); spinIcon.classList.remove('spinning'); });
+}
+
+// ===== RENDER MAIN TABLE =====
+function renderStats(data){
+  var total=data.length;
+  var totalB=data.reduce(function(s,d){return s+(d.วงเงินงบประมาณทั้งโครงการ||0);},0);
+  var done=data.filter(function(d){return getCode(d.สถานะสูงสุด)==='A11';}).length;
+  var inProg=data.filter(function(d){var c=getCode(d.สถานะสูงสุด);return c&&c!=='A11';}).length;
+  var none=data.filter(function(d){return !getCode(d.สถานะสูงสุด);}).length;
+  document.getElementById('statsGrid').innerHTML=
+    '<div class="stat-card"><div class="stat-icon si-blue">📁</div><div><div class="stat-value">'+total.toLocaleString()+'</div><div class="stat-label">โครงการทั้งหมด</div></div></div>'+
+    '<div class="stat-card"><div class="stat-icon si-purple">💰</div><div><div class="stat-value" style="font-size:clamp(0.85rem,2vw,1rem)">'+fmtM(totalB)+'</div><div class="stat-label">วงเงินรวม (บาท)</div></div></div>'+
+    '<div class="stat-card"><div class="stat-icon si-green">✅</div><div><div class="stat-value">'+done+'</div><div class="stat-label">จัดทำ PO แล้ว</div></div></div>'+
+    '<div class="stat-card"><div class="stat-icon si-yellow">⏳</div><div><div class="stat-value">'+inProg+'</div><div class="stat-label">ดำเนินการอยู่</div></div></div>'+
+    '<div class="stat-card"><div class="stat-icon si-red">⚠️</div><div><div class="stat-value">'+none+'</div><div class="stat-label">ยังไม่เริ่มดำเนินการ</div></div></div>';
+}
+
+function renderTable(data){
+  var tbody=document.getElementById('tableBody');
+  var noR=document.getElementById('noResults');
+  document.getElementById('resultCount').textContent='แสดง '+data.length+' รายการ';
+  if(!data.length){tbody.innerHTML='';noR.style.display='block';return;}
+  noR.style.display='none';
+  tbody.innerHTML=data.map(function(row,i){
+    var cfg=getCfg(row.สถานะสูงสุด);
+    var pct=cfg.pct; var color=progColor(pct);
+    var code=getCode(row.สถานะสูงสุด);
+    var label=code?(code+' '+row.สถานะสูงสุด.replace(/^A\d{2}\./,'')):'ยังไม่เริ่มดำเนินการ';
+    return '<tr>'+
+      '<td style="color:var(--gray-500);font-size:0.7rem;text-align:center;white-space:nowrap">'+(i+1)+'</td>'+
+      '<td class="code">'+esc(row.รหัสงบประมาณ||'-')+'</td>'+
+      '<td class="unit">'+esc(row.หน่วยงาน||'-')+'</td>'+
+      '<td class="project">'+esc(row.ชื่อโครงการ||'-')+'</td>'+
+      '<td class="budget">'+fmtB(row.วงเงินงบประมาณทั้งโครงการ)+'</td>'+
+      '<td class="plans"><span class="plan-pill">'+row.จำนวนแผนย่อย+'</span></td>'+
+      '<td><span class="badge '+cfg.cls+'"><span class="badge-dot"></span>'+esc(label)+'</span></td>'+
+      '<td style="min-width:100px"><div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" style="width:'+pct+'%;background:'+color+'"></div></div><span style="font-size:0.66rem;color:var(--gray-600);min-width:24px">'+pct+'%</span></div></td>'+
+    '</tr>';
+  }).join('');
+}
+
+function applyFilters(){
+  var search=document.getElementById('searchInput').value.toLowerCase();
+  var statusF=document.getElementById('statusFilter').value;
+  var unitF=document.getElementById('unitFilter').value;
+  var parts=sortKey.split('-'); var sk=parts[0]; var sd=parts[1];
+  var filtered=ALL_DATA.filter(function(row){
+    var ms=!search||(row.รหัสงบประมาณ||'').toLowerCase().indexOf(search)>=0||(row.หน่วยงาน||'').toLowerCase().indexOf(search)>=0||(row.ชื่อโครงการ||'').toLowerCase().indexOf(search)>=0;
+    var code=getCode(row.สถานะสูงสุด);
+    var mst=!statusF||(statusF==='none'?!code:code===statusF);
+    var mu=!unitF||row.หน่วยงาน===unitF;
+    return ms&&mst&&mu;
+  });
+  filtered.sort(function(a,b){
+    var va,vb;
+    if(sk==='code'){va=a.รหัสงบประมาณ||'';vb=b.รหัสงบประมาณ||'';}
+    else if(sk==='budget'){va=a.วงเงินงบประมาณทั้งโครงการ||0;vb=b.วงเงินงบประมาณทั้งโครงการ||0;}
+    else if(sk==='status'){va=getCfg(a.สถานะสูงสุด).rank;vb=getCfg(b.สถานะสูงสุด).rank;}
+    if(va<vb)return sd==='asc'?-1:1;
+    if(va>vb)return sd==='asc'?1:-1;
+    return 0;
+  });
+  renderStats(filtered);
+  renderTable(filtered);
+}
+
+document.getElementById('searchInput').addEventListener('input',applyFilters);
+document.getElementById('statusFilter').addEventListener('change',applyFilters);
+document.getElementById('unitFilter').addEventListener('change',applyFilters);
+document.getElementById('sortSelect').addEventListener('change',function(e){sortKey=e.target.value;applyFilters();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape') closeDashboard();});
+document.getElementById('dashModal').addEventListener('click',function(e){if(e.target===this) closeDashboard();});
+
+// ===== OPEN DASHBOARD =====
+function openDashboard(){
+  if(!ALL_DATA.length){alert('กรุณารอโหลดข้อมูลก่อนครับ');return;}
+
+  // Build unit map
+  var unitMap={};
+  ALL_DATA.forEach(function(row){
+    var u=row.หน่วยงาน||'(ไม่ระบุ)';
+    if(!unitMap[u]) unitMap[u]={name:u,projects:0,plans:0,budget:0,statusCounts:{}};
+    unitMap[u].projects++;
+    unitMap[u].plans+=(row.จำนวนแผนย่อย||0);
+    unitMap[u].budget+=(row.วงเงินงบประมาณทั้งโครงการ||0);
+    var code=getCode(row.สถานะสูงสุด)||'none';
+    unitMap[u].statusCounts[code]=(unitMap[u].statusCounts[code]||0)+1;
+  });
+  var units=Object.values(unitMap).sort(function(a,b){return b.budget-a.budget;});
+
+  // Status count (all)
+  var statusCount={};
+  ALL_DATA.forEach(function(row){
+    var code=getCode(row.สถานะสูงสุด)||'';
+    statusCount[code]=(statusCount[code]||0)+1;
+  });
+  var maxCount=Math.max.apply(null,Object.values(statusCount).concat([1]));
+
+  // Active status codes (those with data)
+  var activeCodes=STATUS_CODES.filter(function(code){return (statusCount[code]||0)>0;});
+
+  var totalProjects=ALL_DATA.length;
+  var totalBudget=ALL_DATA.reduce(function(s,d){return s+(d.วงเงินงบประมาณทั้งโครงการ||0);},0);
+  var totalPlans=ALL_DATA.reduce(function(s,d){return s+(d.จำนวนแผนย่อย||0);},0);
+  var done=ALL_DATA.filter(function(d){return getCode(d.สถานะสูงสุด)==='A11';}).length;
+  var notStarted=ALL_DATA.filter(function(d){return !getCode(d.สถานะสูงสุด);}).length;
+
+  var now=new Date();
+  var dateStr=now.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'});
+  var timeStr=now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+
+  // Subtitle
+  document.getElementById('dsSubtitle').textContent='สรุปรายหน่วยงาน | ข้อมูล ณ '+dateStr+' เวลา '+timeStr;
+  document.getElementById('dsFooterDate').textContent='สรุป ณ '+dateStr+' | ระบบ PMS';
+
+  // KPI
+  document.getElementById('dsKpi').innerHTML=
+    '<div class="ds-kpi"><div class="ds-kpi-val">'+units.length+'</div><div class="ds-kpi-lbl">หน่วยงาน</div></div>'+
+    '<div class="ds-kpi"><div class="ds-kpi-val">'+totalProjects+'</div><div class="ds-kpi-lbl">โครงการทั้งหมด</div></div>'+
+    '<div class="ds-kpi"><div class="ds-kpi-val">'+totalPlans.toLocaleString()+'</div><div class="ds-kpi-lbl">แผนย่อยทั้งหมด</div></div>'+
+    '<div class="ds-kpi"><div class="ds-kpi-val" style="font-size:clamp(0.55rem,1.2vw,0.85rem)">'+fmtM(totalBudget)+'</div><div class="ds-kpi-lbl">วงเงินรวม (บาท)</div></div>';
+
+  // Status bars
+  document.getElementById('dsSbars').innerHTML=STATUS_CODES.map(function(code){
+    var cfg=SC[code]||SC[''];
+    var count=statusCount[code]||0;
+    if(!count) return '';
+    var pct=Math.round(count/maxCount*100);
+    return '<div class="ds-sbar-row">'+
+      '<div class="ds-sbar-lbl">'+cfg.label+'</div>'+
+      '<div class="ds-sbar-track"><div class="ds-sbar-fill" style="width:'+pct+'%;background:'+cfg.color+'"></div></div>'+
+      '<div class="ds-sbar-num">'+count+'</div>'+
+    '</div>';
+  }).join('');
+
+  // Unit table header — show active status codes as columns
+  var headCols='<th>#</th><th>หน่วยงาน</th><th class="c">โครงการ</th><th class="c">วงเงิน(M)</th>';
+  activeCodes.forEach(function(code){
+    var cfg=SC[code]||SC[''];
+    headCols+='<th class="c" style="color:'+cfg.color+';background:rgba(255,255,255,0.08)">'+esc(code||'ไม่เริ่ม')+'</th>';
+  });
+  document.getElementById('dsUnitHead').innerHTML='<tr>'+headCols+'</tr>';
+
+  // Unit table body — top units by budget
+  var topUnits=units.slice(0,12);
+  document.getElementById('dsUnitBody').innerHTML=topUnits.map(function(u,i){
+    var statusCols=activeCodes.map(function(code){
+      var key=code||'none';
+      var cnt=u.statusCounts[key]||0;
+      var cfg=SC[code]||SC[''];
+      if(!cnt) return '<td class="c" style="opacity:0.3">—</td>';
+      return '<td class="c"><span class="ds-chip" style="background:'+cfg.bg+';color:#fff">'+cnt+'</span></td>';
+    }).join('');
+    return '<tr>'+
+      '<td style="opacity:0.6">'+(i+1)+'</td>'+
+      '<td class="un">'+esc(u.name)+'</td>'+
+      '<td class="c">'+u.projects+'</td>'+
+      '<td class="bud">'+(u.budget/1e6).toFixed(2)+'</td>'+
+      statusCols+
+    '</tr>';
+  }).join('');
+
+  document.getElementById('dashModal').classList.remove('hidden');
+  document.body.style.overflow='hidden';
+}
+
+function closeDashboard(){
+  document.getElementById('dashModal').classList.add('hidden');
+  document.body.style.overflow='';
+}
+
+// ===== DOWNLOAD JPEG =====
+function downloadDashboard(){
+  var btn=document.getElementById('dlBtn');
+  btn.textContent='⏳ กำลังสร้างภาพ...';
+  btn.disabled=true;
+  var el=document.getElementById('dashSlide');
+  html2canvas(el,{
+    scale:3,
+    useCORS:true,
+    backgroundColor:null,
+    logging:false,
+    allowTaint:true,
+    width:el.offsetWidth,
+    height:el.offsetHeight
+  }).then(function(canvas){
+    var link=document.createElement('a');
+    var d=new Date();
+    link.download='dashboard_จัดซื้อจัดจ้าง_'+d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()+'.jpg';
+    link.href=canvas.toDataURL('image/jpeg',0.95);
+    link.click();
+  }).catch(function(err){ alert('เกิดข้อผิดพลาด: '+err.message); })
+  .finally(function(){ btn.textContent='⬇️ ดาวน์โหลด JPEG'; btn.disabled=false; });
+}
+
+loadData();
+</script>
+</body>
+</html>
