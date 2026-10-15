@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+
+<html lang="th">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>สรุปข้อมูลติดตามสถานะการจัดซื้อจัดจ้าง</title>
+<style>
+:root {
+  --primary:#1a56a0; --primary-dark:#0f3d7a; --primary-light:#e8f0fb;
+  --gray-100:#f3f4f6; --gray-200:#e5e7eb; --gray-600:#4b5563; --gray-800:#1f2937;
+  --white:#ffffff; --shadow:0 1px 4px rgba(0,0,0,0.12); --radius:10px;
+  --font:'Sarabun','Segoe UI',Arial,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--gray-100);color:var(--gray-800);padding:20px;}
+h1{font-size:1.2rem;font-weight:800;color:var(--primary-dark);margin-bottom:4px;}
+.subtitle{font-size:0.8rem;color:var(--gray-600);margin-bottom:20px;}
+.section{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:20px;}
+.section-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--primary-light);}
+.section-title{font-size:0.9rem;font-weight:700;color:var(--primary-dark);}
+.dl-btn{border:none;border-radius:20px;padding:6px 16px;font-size:0.76rem;font-weight:700;cursor:pointer;font-family:var(--font);display:inline-flex;align-items:center;gap:5px;transition:opacity 0.2s;}
+.dl-btn:hover{opacity:0.85;}
+.dl-btn:disabled{opacity:0.6;cursor:not-allowed;}
+.btn-bar{background:#1d4ed8;color:#fff;}
+.btn-tbl{background:#065f46;color:#fff;}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table{width:100%;border-collapse:collapse;font-size:0.76rem;}
+thead{background:linear-gradient(135deg,#0f3d7a,#1a56a0);color:#fff;position:sticky;top:0;z-index:5;}
+thead th{padding:8px 10px;text-align:center;font-weight:600;font-size:0.72rem;white-space:nowrap;border-right:1px solid rgba(255,255,255,0.15);}
+thead th.left{text-align:left;}
+tbody tr{border-bottom:1px solid var(--gray-100);}
+tbody tr:nth-child(even){background:#f9fafb;}
+tbody tr:hover{background:var(--primary-light);}
+td{padding:7px 10px;vertical-align:middle;white-space:nowrap;}
+td.unit{font-weight:700;color:var(--primary-dark);text-align:left;}
+td.num{text-align:right;}
+td.pct{text-align:right;font-weight:700;}
+td.pct-high{color:#065f46;}
+td.pct-mid{color:#854d0e;}
+td.pct-low{color:#9ca3af;}
+.mini-bar{height:6px;background:var(--gray-200);border-radius:3px;overflow:hidden;margin-top:2px;}
+.mini-fill{height:100%;border-radius:3px;}
+</style>
+</head>
+<body>
+<!-- Loading overlay -->
+<div id="loadingOverlay" style="display:none;position:fixed;inset:0;background:rgba(255,255,255,0.88);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:14px;">
+  <div style="width:44px;height:44px;border:4px solid #e5e7eb;border-top-color:#1a56a0;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+  <div style="font-size:0.9rem;color:#4b5563;">กำลังดึงข้อมูลจาก Google Sheets...</div>
+</div>
+<style>@keyframes spin{to{transform:rotate(360deg);}}</style>
+
+<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:4px;">
+  <h1>📊 สรุปข้อมูลติดตามสถานะการจัดซื้อจัดจ้าง</h1>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <span id="lastUpdate" style="font-size:0.72rem;color:#6b7280;"></span>
+    <button onclick="loadChartData()" style="background:#1a56a0;color:#fff;border:none;border-radius:20px;padding:5px 14px;font-size:0.74rem;font-weight:600;cursor:pointer;font-family:var(--font);">🔄 รีเฟรช</button>
+  </div>
+</div>
+<p class="subtitle">ปีงบประมาณ 2570 | สำนักงานชลประทานที่ 11 | เรียงตาม ลงนามสัญญา (%) มากไปน้อย</p>
+<!-- BAR CHART -->
+<div class="section">
+<div class="section-header">
+<div class="section-title">📈 Bar Chart — เปรียบเทียบ % ความคืบหน้าการจัดซื้อจัดจ้าง รายหน่วยงาน</div>
+<button class="dl-btn btn-bar" id="btnBar" onclick="downloadBarChart(this)">⬇️ ดาวน์โหลด Bar Chart (16:9)</button>
+</div>
+<canvas id="barCanvas" style="width:100%;max-width:100%;display:block;border-radius:8px;border:1px solid #e5e7eb;"></canvas>
+</div>
+<!-- TABLE -->
+<div class="section" id="tableSection">
+<div class="section-header">
+<div class="section-title">📋 ตารางสรุปรายหน่วยงาน (คอลัมน์ B–T)</div>
+<button class="dl-btn btn-tbl" id="btnTbl" onclick="downloadTable(this)">⬇️ ดาวน์โหลด ตาราง</button>
+</div>
+<div class="tbl-wrap">
+<table id="mainTable">
+<thead>
+<tr>
+<th class="left">#</th><th class="left">หน่วยงาน</th>
+<th>จำนวน<br/>โครงการ</th><th>วงเงินจัดหา<br/>ทั้งหมด (บ.)</th>
+<th>(8) อนุมัติ<br/>สั่งซื้อ (จ.)</th><th>(8) อนุมัติ<br/>สั่งซื้อ (ว.)</th>
+<th>(9) ประกาศ<br/>ผู้ชนะ (จ.)</th><th>(9) ประกาศ<br/>ผู้ชนะ (ว.)</th>
+<th>(10) ลงนาม<br/>สัญญา (จ.)</th><th>(10) ลงนาม<br/>สัญญา (ว.)</th>
+<th>เริ่มจัดหา<br/>แล้ว (จ.)</th><th>เริ่มจัดหา<br/>แล้ว (ว.)</th>
+<th>อนุมัติรับ<br/>ราคา (จ.)</th><th>อนุมัติรับ<br/>ราคา (ว.)</th>
+<th>ผลอนุมัติ<br/>รับราคา</th><th>มูลค่า<br/>สัญญา</th>
+<th>จัดทำ PO<br/>(มูลค่า)</th>
+<th>จัดหา<br/>(%)</th><th>รับราคา<br/>(%)</th><th>ลงนาม<br/>(%)</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+</div>
+</div>
+<script>
+var DATA = []; // โหลดจาก GAS real-time
+
+DATA.sort(function(a,b){ return b.ลงนามPct - a.ลงนามPct; });
+
+var C1='#1d4ed8', C2='#9d174d', C3='#10b981';
+
+function fmtN(n){ if(!n) return '—'; return Number(n).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:0}); }
+function fmtP(n){ return Number(n||0).toFixed(2); }
+function pctClass(p){ return p>=10?'pct-high':p>=1?'pct-mid':'pct-low'; }
+
+// ===== DRAW BAR CHART ON CANVAS (16:9 = 1920x1080) =====
+function drawBarChart(canvas) {
+  var W=1920, H=1080;
+  canvas.width=W; canvas.height=H;
+  var ctx=canvas.getContext('2d');
+  var n=DATA.length;
+
+  // ถ้าไม่มีข้อมูล แสดง placeholder
+  if (n === 0) {
+    ctx.fillStyle='#f8faff';
+    ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#94a3b8';
+    ctx.font='bold 36px "Noto Sans Thai","Noto Sans",sans-serif';
+    ctx.textAlign='center';
+    ctx.fillText('กำลังโหลดข้อมูลจาก Google Sheets...', W/2, H/2);
+    return;
+  }
+
+  // Padding
+  var pT=90, pB=65, pL=200, pR=160; // เพิ่ม pR สำหรับ legend ขวา
+  var cW=W-pL-pR, cH=H-pT-pB;
+  var rowH=cH/n;
+  var bH=rowH*0.20;
+
+  // Background
+  ctx.fillStyle='#f8faff';
+  ctx.fillRect(0,0,W,H);
+
+  // Title
+  ctx.fillStyle='#0f3d7a';
+  ctx.font='bold 30px "Noto Sans Thai","Noto Sans",sans-serif';
+  ctx.textAlign='center';
+  ctx.fillText('เปรียบเทียบ % ความคืบหน้าการจัดซื้อจัดจ้าง รายหน่วยงาน (%เทียบกับวงเงินจัดหาทั้งหมด)',W/2,40);
+  ctx.font='20px "Noto Sans Thai","Noto Sans",sans-serif';
+  ctx.fillStyle='#4b5563';
+  ctx.fillText('ปีงบประมาณ 2570 | สำนักงานชลประทานที่ 11 | เรียงตาม ลงนามสัญญา (%) มากไปน้อย | เพื่อประเมินประสิทธิภาพในการเบิกจ่าย',W/2,68);
+
+  // X axis grid & labels
+  ctx.font='16px "Noto Sans",sans-serif';
+  ctx.textAlign='center';
+  for(var x=0;x<=100;x+=10){
+    var px=pL+(x/100)*cW;
+    ctx.strokeStyle=x===0?'#94a3b8':'#e2e8f0';
+    ctx.lineWidth=x===0?1.5:1;
+    ctx.beginPath(); ctx.moveTo(px,pT); ctx.lineTo(px,pT+cH); ctx.stroke();
+    ctx.fillStyle='#6b7280';
+    ctx.fillText(x+'%',px,pT+cH+20);
+  }
+
+  // X axis title
+  ctx.font='18px "Noto Sans Thai","Noto Sans",sans-serif';
+  ctx.fillStyle='#374151';
+  ctx.textAlign='center';
+  ctx.fillText('ร้อยละ (%)',W/2,H-8);
+
+  // Rows
+  for(var i=0;i<n;i++){
+    var d=DATA[i];
+    var ry=pT+i*rowH;
+    var cy=ry+rowH/2;
+
+    // Alternating bg
+    if(i%2===0){ ctx.fillStyle='rgba(26,86,160,0.04)'; ctx.fillRect(pL,ry,cW,rowH); }
+
+    // Row divider
+    ctx.strokeStyle='#cbd5e1'; ctx.lineWidth=0.8;
+    ctx.beginPath(); ctx.moveTo(pL,ry); ctx.lineTo(W-pR,ry); ctx.stroke();
+
+    // Unit name
+    ctx.fillStyle='#1f2937';
+    ctx.font='bold 17px "Noto Sans Thai","Noto Sans",sans-serif';
+    ctx.textAlign='right';
+    ctx.fillText(d.หน่วยงาน,pL-8,cy+6);
+
+    // Bar positions: 3 bars centered in row
+    var y1=cy-bH*1.5-2;
+    var y2=cy-bH/2;
+    var y3=cy+bH/2+2;
+
+    // Bar 1: จัดหา
+    var w1=Math.max((d.จัดหาPct/100)*cW,2);
+    ctx.fillStyle=C1;
+    roundRect(ctx,pL,y1,w1,bH,3);
+    if(d.จัดหาPct>0){
+      ctx.fillStyle=C1; ctx.font='bold 13px "Noto Sans",sans-serif'; ctx.textAlign='left';
+      ctx.fillText(fmtP(d.จัดหาPct)+'%',pL+w1+5,y1+bH-2);
+    }
+
+    // Bar 2: รับราคา
+    var w2=Math.max((d.รับราคาPct/100)*cW,2);
+    ctx.fillStyle=C2;
+    roundRect(ctx,pL,y2,w2,bH,3);
+    if(d.รับราคาPct>0){
+      ctx.fillStyle=C2; ctx.font='bold 13px "Noto Sans",sans-serif'; ctx.textAlign='left';
+      ctx.fillText(fmtP(d.รับราคาPct)+'%',pL+w2+5,y2+bH-2);
+    }
+
+    // Bar 3: ลงนาม
+    var w3=Math.max((d.ลงนามPct/100)*cW,2);
+    ctx.fillStyle=C3;
+    roundRect(ctx,pL,y3,w3,bH,3);
+    if(d.ลงนามPct>0){
+      ctx.fillStyle=C3; ctx.font='bold 13px "Noto Sans",sans-serif'; ctx.textAlign='left';
+      ctx.fillText(fmtP(d.ลงนามPct)+'%',pL+w3+5,y3+bH-2);
+    }
+  }
+
+  // Last row divider
+  ctx.strokeStyle='#cbd5e1'; ctx.lineWidth=0.8;
+  ctx.beginPath(); ctx.moveTo(pL,pT+cH); ctx.lineTo(W-pR,pT+cH); ctx.stroke();
+
+  // Legend — ฝั่งขวา เรียงแนวตั้ง ไม่ทับ chart
+  var legendX = W - pR + 18; // ขวาของ chart area
+  var legendY = pT + 20;
+  var legendItems=[{c:C1,t:'จัดหา (%)'},{c:C2,t:'รับราคา (%)'},{c:C3,t:'ลงนามสัญญา (%)'}];
+  ctx.font='15px "Noto Sans Thai","Noto Sans",sans-serif';
+  legendItems.forEach(function(item,idx){
+    var iy = legendY + idx * 30;
+    ctx.fillStyle=item.c;
+    roundRect(ctx,legendX,iy-12,18,14,3);
+    ctx.fillStyle='#374151'; ctx.textAlign='left';
+    ctx.fillText(item.t, legendX+24, iy);
+  });
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  if(ctx.roundRect){ ctx.roundRect(x,y,w,h,r); }
+  else {
+    ctx.moveTo(x+r,y);
+    ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+    ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y);
+    ctx.closePath();
+  }
+  ctx.fill();
+}
+
+// ===== DOWNLOAD BAR CHART =====
+function downloadBarChart(btn){
+  var origText=btn.innerHTML;
+  btn.innerHTML='⏳ กำลังสร้างภาพ...'; btn.disabled=true;
+  try{
+    var canvas=document.getElementById('barCanvas');
+    var link=document.createElement('a');
+    var d=new Date();
+    link.download='barchart_'+d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()+'.jpg';
+    link.href=canvas.toDataURL('image/jpeg',0.95);
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+  }catch(e){ alert('เกิดข้อผิดพลาด: '+e.message); }
+  finally{ btn.innerHTML=origText; btn.disabled=false; }
+}
+
+// ===== DOWNLOAD TABLE via Canvas =====
+function downloadTable(btn){
+  var origText=btn.innerHTML;
+  btn.innerHTML='⏳ กำลังสร้างภาพ...'; btn.disabled=true;
+
+  try {
+    // กำหนดขนาด canvas สำหรับตาราง
+    var SCALE=2;
+    var cols=['#','หน่วยงาน','โครงการ','วงเงินจัดหา(บ.)','(8)อนุมัติสั่งซื้อ(จ.)','(8)อนุมัติสั่งซื้อ(ว.)','(9)ประกาศผู้ชนะ(จ.)','(9)ประกาศผู้ชนะ(ว.)','(10)ลงนามสัญญา(จ.)','(10)ลงนามสัญญา(ว.)','เริ่มจัดหา(จ.)','เริ่มจัดหา(ว.)','อนุมัติรับราคา(จ.)','อนุมัติรับราคา(ว.)','ผลอนุมัติรับราคา','มูลค่าสัญญา','จัดทำPO','จัดหา(%)','รับราคา(%)','ลงนาม(%)'];
+    var colW=[30,120,55,100,70,100,70,100,70,100,70,100,70,100,100,100,100,60,60,60];
+    var rowH=28, headH=40, titleH=36, padX=16, padY=12;
+    var totalW=colW.reduce(function(a,b){return a+b;},0)+padX*2;
+    var totalH=titleH+headH+rowH*DATA.length+padY*2;
+
+    var canvas=document.createElement('canvas');
+    canvas.width=totalW*SCALE; canvas.height=totalH*SCALE;
+    var ctx=canvas.getContext('2d');
+    ctx.scale(SCALE,SCALE);
+
+    // Background
+    ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,totalW,totalH);
+
+    // Title
+    ctx.fillStyle='#0f3d7a';
+    ctx.font='bold 14px "Noto Sans Thai","Noto Sans",sans-serif';
+    ctx.textAlign='left';
+    ctx.fillText('ตารางสรุปรายหน่วยงาน — ปีงบประมาณ 2570 | สำนักงานชลประทานที่ 11',padX,padY+16);
+
+    var startY=titleH;
+
+    // Header
+    ctx.fillStyle='#0f3d7a';
+    ctx.fillRect(padX,startY,totalW-padX*2,headH);
+    ctx.fillStyle='#ffffff';
+    ctx.font='bold 9px "Noto Sans Thai","Noto Sans",sans-serif';
+    ctx.textAlign='center';
+    var cx=padX;
+    for(var c=0;c<cols.length;c++){
+      ctx.fillText(cols[c],cx+colW[c]/2,startY+headH/2+4,colW[c]-4);
+      cx+=colW[c];
+    }
+
+    // Rows
+    ctx.font='9px "Noto Sans Thai","Noto Sans",sans-serif';
+    for(var i=0;i<DATA.length;i++){
+      var d=DATA[i];
+      var ry=startY+headH+i*rowH;
+      // Alternating bg
+      ctx.fillStyle=i%2===0?'#f9fafb':'#ffffff';
+      ctx.fillRect(padX,ry,totalW-padX*2,rowH);
+      // Border
+      ctx.strokeStyle='#e5e7eb'; ctx.lineWidth=0.5;
+      ctx.beginPath(); ctx.moveTo(padX,ry+rowH); ctx.lineTo(totalW-padX,ry+rowH); ctx.stroke();
+
+      var vals=[
+        (i+1)+'',
+        d.หน่วยงาน,
+        fmtN(d.จำนวนโครงการ),
+        fmtN(d.วงเงินจัดหาทั้งหมด),
+        fmtN(d.อนุมัติสั่งซื้อจำนวน),
+        fmtN(d.อนุมัติสั่งซื้อวงเงิน),
+        fmtN(d.ประกาศผู้ชนะจำนวน),
+        fmtN(d.ประกาศผู้ชนะวงเงิน),
+        fmtN(d.ลงนามสัญญาจำนวน),
+        fmtN(d.ลงนามสัญญาวงเงิน),
+        fmtN(d.เริ่มจัดหาแล้วจำนวน),
+        fmtN(d.เริ่มจัดหาแล้ววงเงิน),
+        fmtN(d.อนุมัติรับราคาจำนวน),
+        fmtN(d.อนุมัติรับราคาวงเงิน),
+        fmtN(d.ผลอนุมัติรับราคา),
+        fmtN(d.มูลค่าสัญญา),
+        fmtN(d.จัดทำPO),
+        fmtP(d.จัดหาPct)+'%',
+        fmtP(d.รับราคาPct)+'%',
+        fmtP(d.ลงนามPct)+'%'
+      ];
+      cx=padX;
+      for(var c2=0;c2<vals.length;c2++){
+        ctx.fillStyle=c2===1?'#0f3d7a':'#1f2937';
+        ctx.textAlign=c2<=1?'left':'right';
+        var tx=c2<=1?cx+4:cx+colW[c2]-4;
+        ctx.fillText(vals[c2],tx,ry+rowH/2+4,colW[c2]-6);
+        cx+=colW[c2];
+      }
+    }
+
+    // Column dividers
+    ctx.strokeStyle='#e5e7eb'; ctx.lineWidth=0.5;
+    cx=padX;
+    for(var c3=0;c3<colW.length-1;c3++){
+      cx+=colW[c3];
+      ctx.beginPath(); ctx.moveTo(cx,startY); ctx.lineTo(cx,startY+headH+rowH*DATA.length); ctx.stroke();
+    }
+
+    // Download
+    var link=document.createElement('a');
+    var d2=new Date();
+    link.download='table_'+d2.getFullYear()+'-'+(d2.getMonth()+1)+'-'+d2.getDate()+'.jpg';
+    link.href=canvas.toDataURL('image/jpeg',0.95);
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+  } catch(err) {
+    alert('เกิดข้อผิดพลาด: '+err.message);
+  } finally {
+    btn.innerHTML=origText; btn.disabled=false;
+  }
+}
+
+// ===== RENDER TABLE =====
+function renderTable(){
+  var tbHTML=DATA.map(function(d,i){
+    var lPct=d.ลงนามPct||0;
+    return '<tr>'+
+      '<td style="color:#6b7280;font-size:0.7rem;text-align:center">'+(i+1)+'</td>'+
+      '<td class="unit">'+d.หน่วยงาน+'</td>'+
+      '<td class="num">'+fmtN(d.จำนวนโครงการ)+'</td>'+
+      '<td class="num">'+fmtN(d.วงเงินจัดหาทั้งหมด)+'</td>'+
+      '<td class="num">'+fmtN(d.อนุมัติสั่งซื้อจำนวน)+'</td>'+
+      '<td class="num">'+fmtN(d.อนุมัติสั่งซื้อวงเงิน)+'</td>'+
+      '<td class="num">'+fmtN(d.ประกาศผู้ชนะจำนวน)+'</td>'+
+      '<td class="num">'+fmtN(d.ประกาศผู้ชนะวงเงิน)+'</td>'+
+      '<td class="num">'+fmtN(d.ลงนามสัญญาจำนวน)+'</td>'+
+      '<td class="num">'+fmtN(d.ลงนามสัญญาวงเงิน)+'</td>'+
+      '<td class="num">'+fmtN(d.เริ่มจัดหาแล้วจำนวน)+'</td>'+
+      '<td class="num">'+fmtN(d.เริ่มจัดหาแล้ววงเงิน)+'</td>'+
+      '<td class="num">'+fmtN(d.อนุมัติรับราคาจำนวน)+'</td>'+
+      '<td class="num">'+fmtN(d.อนุมัติรับราคาวงเงิน)+'</td>'+
+      '<td class="num">'+fmtN(d.ผลอนุมัติรับราคา)+'</td>'+
+      '<td class="num">'+fmtN(d.มูลค่าสัญญา)+'</td>'+
+      '<td class="num">'+fmtN(d.จัดทำPO)+'</td>'+
+      '<td class="pct '+pctClass(d.จัดหาPct)+'">'+fmtP(d.จัดหาPct)+'%<div class="mini-bar"><div class="mini-fill" style="width:'+Math.min(d.จัดหาPct||0,100)+'%;background:'+C1+'"></div></div></td>'+
+      '<td class="pct '+pctClass(d.รับราคาPct)+'">'+fmtP(d.รับราคาPct)+'%<div class="mini-bar"><div class="mini-fill" style="width:'+Math.min(d.รับราคาPct||0,100)+'%;background:'+C2+'"></div></div></td>'+
+      '<td class="pct '+pctClass(lPct)+'"><strong>'+fmtP(lPct)+'%</strong><div class="mini-bar"><div class="mini-fill" style="width:'+Math.min(lPct,100)+'%;background:'+C3+'"></div></div></td>'+
+    '</tr>';
+  }).join('');
+  document.getElementById('tableBody').innerHTML=tbHTML;
+}
+
+// ===== LOAD DATA FROM GAS (Real-time) =====
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbzSSgdGzQZgxfKilb9O9ZFOHzeYF-0XhTdrwbASAsSSbIFhh5BY3YKRbXVMvtW2MrVeZg/exec';
+
+function loadChartData() {
+  var overlay = document.getElementById('loadingOverlay');
+  var errEl   = document.getElementById('errorMsg');
+  if (overlay) overlay.style.display = 'flex';
+  if (errEl)   errEl.style.display = 'none';
+  tryJSONP();
+}
+
+var GAS_URL = 'https://script.google.com/macros/s/AKfycbzSSgdGzQZgxfKilb9O9ZFOHzeYF-0XhTdrwbASAsSSbIFhh5BY3YKRbXVMvtW2MrVeZg/exec';
+
+function tryJSONP() {
+  var overlay = document.getElementById('loadingOverlay');
+  var callbackName = 'chartCB_' + Date.now();
+  var script = document.createElement('script');
+  var timer = setTimeout(function() {
+    if (window[callbackName]) { delete window[callbackName]; }
+    try { document.body.removeChild(script); } catch(e){}
+    if (overlay) overlay.style.display = 'none';
+    var errEl = document.getElementById('errorMsg');
+    if (errEl) { errEl.textContent = '⚠️ ไม่สามารถดึงข้อมูลจาก Google Sheets ได้ กรุณากด 🔄 รีเฟรชอีกครั้ง'; errEl.style.display = 'block'; }
+    // ไม่ render ถ้าไม่มีข้อมูล
+    if (DATA.length > 0) renderAll();
+  }, 10000);
+  window[callbackName] = function(result) {
+    clearTimeout(timer);
+    delete window[callbackName];
+    try { document.body.removeChild(script); } catch(e){}
+    if (overlay) overlay.style.display = 'none';
+    if (result && result.success && result.data && result.data.length > 0) {
+      DATA = result.data;
+      var upd = document.getElementById('lastUpdate');
+      if (upd && result.updatedAt) {
+        var d = new Date(result.updatedAt);
+        upd.textContent = 'อัปเดต ' + d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+      }
+    } else {
+      var errEl = document.getElementById('errorMsg');
+      if (errEl) { errEl.textContent = 'GAS: ' + ((result&&result.error)||'ข้อมูลว่าง') + ' — แสดงข้อมูลล่าสุด'; errEl.style.display = 'block'; }
+    }
+    renderAll();
+  };
+  script.onerror = function() {
+    clearTimeout(timer);
+    delete window[callbackName];
+    if (overlay) overlay.style.display = 'none';
+    renderAll();
+  };
+  script.src = GAS_URL + '?action=chart&callback=' + callbackName;
+  document.body.appendChild(script);
+}
+
+
+
+
+
+
+function renderAll() {
+  var canvas = document.getElementById('barCanvas');
+  drawBarChart(canvas);
+  renderTable();
+}
+
+window.addEventListener('load', function() {
+  // แสดง placeholder ก่อน (DATA ว่าง)
+  var canvas = document.getElementById('barCanvas');
+  drawBarChart(canvas);
+  renderTable();
+  // โหลดข้อมูล real-time จาก GAS
+  loadChartData();
+});
+</script>
+</body>
+</html>
