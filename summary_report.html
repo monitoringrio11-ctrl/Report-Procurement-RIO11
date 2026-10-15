@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+
+<html lang="th">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>สรุปข้อมูลติดตามสถานะการจัดซื้อจัดจ้าง</title>
+<style>
+:root {
+  --primary:#1a56a0; --primary-dark:#0f3d7a; --primary-light:#e8f0fb;
+  --gray-100:#f3f4f6; --gray-200:#e5e7eb; --gray-600:#4b5563; --gray-800:#1f2937;
+  --white:#ffffff; --shadow:0 1px 4px rgba(0,0,0,0.12); --radius:10px;
+  --font:'Sarabun','Segoe UI',Arial,sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font);background:var(--gray-100);color:var(--gray-800);padding:20px;}
+h1{font-size:1.2rem;font-weight:800;color:var(--primary-dark);margin-bottom:4px;}
+.subtitle{font-size:0.8rem;color:var(--gray-600);margin-bottom:20px;}
+
+/* SECTION */
+.section{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:20px;}
+.section-title{font-size:0.9rem;font-weight:700;color:var(--primary-dark);margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--primary-light);}
+
+/* BAR CHART */
+.chart-wrap{overflow-x:auto;}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.bar-label{font-size:0.78rem;font-weight:600;min-width:160px;flex-shrink:0;color:var(--gray-800);}
+.bar-tracks{flex:1;display:flex;flex-direction:column;gap:3px;min-width:200px;}
+.bar-track-row{display:flex;align-items:center;gap:6px;}
+.bar-track{flex:1;height:14px;background:var(--gray-100);border-radius:7px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:7px;transition:width 0.5s ease;}
+.bar-pct{font-size:0.7rem;font-weight:700;min-width:42px;text-align:right;flex-shrink:0;}
+.bar-legend{display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:0.75rem;}
+.legend-dot{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table{width:100%;border-collapse:collapse;font-size:0.76rem;}
+thead{background:linear-gradient(135deg,#0f3d7a,#1a56a0);color:#fff;position:sticky;top:0;z-index:5;}
+thead th{padding:8px 10px;text-align:center;font-weight:600;font-size:0.72rem;white-space:nowrap;border-right:1px solid rgba(255,255,255,0.15);}
+thead th:last-child{border-right:none;}
+thead th.left{text-align:left;}
+tbody tr{border-bottom:1px solid var(--gray-100);}
+tbody tr:hover{background:var(--primary-light);}
+tbody tr:last-child{border-bottom:none;}
+td{padding:7px 10px;vertical-align:middle;white-space:nowrap;}
+td.unit{font-weight:700;color:var(--primary-dark);text-align:left;}
+td.num{text-align:right;}
+td.pct{text-align:right;font-weight:700;}
+td.pct-high{color:#065f46;}
+td.pct-mid{color:#854d0e;}
+td.pct-low{color:#9ca3af;}
+.pct-bar-cell{min-width:80px;}
+.mini-bar{height:8px;background:var(--gray-200);border-radius:4px;overflow:hidden;margin-top:2px;}
+.mini-fill{height:100%;border-radius:4px;}
+
+/* HIGHLIGHT ROW */
+tbody tr.highlight{background:#fef9c3;}
+
+@media(max-width:640px){
+  body{padding:12px;}
+  .bar-label{min-width:100px;font-size:0.7rem;}
+}
+</style>
+</head>
+<body>
+<h1>📊 สรุปข้อมูลติดตามสถานะการจัดซื้อจัดจ้าง</h1>
+<p class="subtitle">ปีงบประมาณ 2570 | สำนักงานชลประทานที่ 11 | เรียงตาม ลงนามสัญญา (%) มากไปน้อย</p>
+<!-- BAR CHART SECTION -->
+<div class="section">
+<div class="section-title">📈 Bar Chart — เปรียบเทียบ % ความคืบหน้าการจัดซื้อจัดจ้าง รายหน่วยงาน</div>
+<div class="bar-legend">
+<div class="legend-item"><div class="legend-dot" style="background:#1d4ed8"></div>จัดหา (%)</div>
+<div class="legend-item"><div class="legend-dot" style="background:#9d174d"></div>รับราคา (%)</div>
+<div class="legend-item"><div class="legend-dot" style="background:#10b981"></div>ลงนามสัญญา (%)</div>
+</div>
+<div class="chart-wrap" id="barChart"></div>
+</div>
+<!-- TABLE SECTION -->
+<div class="section">
+<div class="section-title">📋 ตารางสรุปรายหน่วยงาน (คอลัมน์ B–T)</div>
+<div class="tbl-wrap">
+<table id="mainTable">
+<thead>
+<tr>
+<th class="left">#</th>
+<th class="left">หน่วยงาน</th>
+<th>จำนวน<br/>โครงการ</th>
+<th>วงเงินจัดหา<br/>ทั้งหมด (บ.)</th>
+<th>(8) อนุมัติ<br/>สั่งซื้อ (จ.)</th>
+<th>(8) อนุมัติ<br/>สั่งซื้อ (ว.)</th>
+<th>(9) ประกาศ<br/>ผู้ชนะ (จ.)</th>
+<th>(9) ประกาศ<br/>ผู้ชนะ (ว.)</th>
+<th>(10) ลงนาม<br/>สัญญา (จ.)</th>
+<th>(10) ลงนาม<br/>สัญญา (ว.)</th>
+<th>เริ่มจัดหา<br/>แล้ว (จ.)</th>
+<th>เริ่มจัดหา<br/>แล้ว (ว.)</th>
+<th>อนุมัติรับ<br/>ราคา (จ.)</th>
+<th>อนุมัติรับ<br/>ราคา (ว.)</th>
+<th>ผลอนุมัติ<br/>รับราคา</th>
+<th>มูลค่า<br/>สัญญา</th>
+<th>จัดทำ PO<br/>(มูลค่า)</th>
+<th>จัดหา<br/>(%)</th>
+<th>รับราคา<br/>(%)</th>
+<th>ลงนาม<br/>(%)</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+</div>
+</div>
+<script>
+var DATA = [{"หน่วยงาน":"คบ.พระองค์ไชยานุชิต","จำนวนโครงการ":49,"วงเงินจัดหาทั้งหมด":33444408,"อนุมัติสั่งซื้อจำนวน":0,"อนุมัติสั่งซื้อวงเงิน":0,"ประกาศผู้ชนะจำนวน":87,"ประกาศผู้ชนะวงเงิน":8930087.35,"ลงนามสัญญาจำนวน":53,"ลงนามสัญญาวงเงิน":4360277.06,"เริ่มจัดหาแล้วจำนวน":140,"เริ่มจัดหาแล้ววงเงิน":13290364.41,"อนุมัติรับราคาจำนวน":140,"อนุมัติรับราคาวงเงิน":13290364.41,"ผลอนุมัติรับราคา":13290364.41,"มูลค่าสัญญา":4360277.06,"จัดทำPO":4360277.06,"จัดหาPct":39.74,"รับราคาPct":39.74,"ลงนามPct":13.04},{"หน่วยงาน":"คบ.ชลหารพิจิตร","จำนวนโครงการ":22,"วงเงินจัดหาทั้งหมด":60292000,"อนุมัติสั่งซื้อจำนวน":0,"อนุมัติสั่งซื้อวงเงิน":0,"ประกาศผู้ชนะจำนวน":5,"ประกาศผู้ชนะวงเงิน":655861,"ลงนามสัญญาจำนวน":2,"ลงนามสัญญาวงเงิน":142939,"เริ่มจัดหาแล้วจำนวน":7,"เริ่มจัดหาแล้ววงเงิน":798800,"อนุมัติรับราคาจำนวน":7,"อนุมัติรับราคาวงเงิน":798800,"ผลอนุมัติรับราคา":798158,"มูลค่าสัญญา":142939,"จัดทำPO":142939,"จัดหาPct":1.32,"รับราคาPct":1.32,"ลงนามPct":0.24},{"หน่วยงาน":"คบ.ภาษีเจริญ","จำนวนโครงการ":38,"วงเงินจัดหาทั้งหมด":30489900,"อนุมัติสั่งซื้อจำนวน":0,"อนุมัติสั่งซื้อวงเงิน":0,"ประกาศผู้ชนะจำนวน":1,"ประกาศผู้ชนะวงเงิน":50000,"ลงนามสัญญาจำนวน":1,"ลงนามสัญญาวงเงิน":50000,"เริ่มจัดหาแล้วจำนวน":1,"เริ่มจัดหาแล้ววงเงิน":50000,"อนุมัติรับราคาจำนวน":1,"อนุมัติรับราคาวงเงิน":50000,"ผลอนุมัติรับราคา":49997,"มูลค่าสัญญา":50000,"จัดทำPO":50000,"จัดหาPct":0.17,"รับราคาPct":0.17,"ลงนามPct":0.17},{"หน่วยงาน":"คบ.เจ้าเจ็ด-บางยี่หน","จำนวนโครงการ":4,"วงเงินจัดหาทั้งหมด":93918937.89,"อนุมัติสั่งซื้อจำนวน":0,"อนุมัติสั่งซื้อวงเงิน":0,"ประกาศผู้ชนะจำนวน":1,"ประกาศผู้ชนะวงเงิน":40000,"ลงนามสัญญาจำนวน":1,"ลงนามสัญญาวงเงิน":40000,"เริ่มจัดหาแล้วจำนวน":1,"เริ่มจัดหาแล้ววงเงิน":40000,"อนุมัติรับราคาจำนวน":1,"อนุมัติรับราคาวงเงิน":40000,"ผลอนุมัติรับราคา":40000,"มูลค่าสัญญา":40000,"จัดทำPO":40000,"จัดหาPct":0.04,"รับราคาPct":0.04,"ลงนามPct":0.04},{"หน่วยงาน":"คบ.รังสิตเหนือ","จำนวนโครงการ":5,"วงเงินจัดหาทั้งหมด":159646060,"อนุมัติสั่งซื้อจำนวน":0,"อนุมัติสั่งซื้อวงเงิน":0,"ประกาศผู้ชนะจำนวน":1,"ประกาศผู้ชนะวงเงิน":20000,"ลงนามสัญญาจำนวน":1,"ลงนามสัญญาวงเงิน":20000,"เริ่มจัดหาแล้วจำนวน":1,"เริ่มจัดหาแล้ววงเงิน":20000,"อนุมัติรับราคาจำนวน":1,"อนุมัติรับราคาวงเงิน":20000,"ผลอนุมัติรับราคา":19890,"มูลค่าสัญญา":19890,"จัดทำPO":19890,"จัดหาPct":0.01,"รับราคาPct":0.01,"ลงนามPct":0.01},{"หน่วยงาน":"คบ.พระยาบรรลือ","จำนวนโครงการ":6,"วงเงินจัดหาทั้งหมด":221822276.44,"อนุมัติสั่งซื้อจำนวน":0,"อนุมัติสั่งซื้อวงเงิน":0,"ประกาศผู้ชนะจำนวน":3,"ประกาศผู้ชนะวงเงิน":1510000,"ลงนามสัญญาจำนวน":0,"ลงนามสัญญาวงเงิน":0,"เริ่มจัดหาแล้วจำนวน":3,"เริ่มจัดหาแล้ววงเงิน":1510000,"อนุมัติรับราคาจำนวน":3,"อนุมัติรับราคาวงเงิน":1510000,"ผลอนุมัติรับราคา":1510000,"มูลค่าสัญญา":0,"จัดทำPO":0,"จัดหาPct":0.68,"รับราคาPct":0.68,"ลงนามPct":0},{"หน่วยงาน":"คบ.รังสิตใต้","จำนวนโครงการ":10,"วงเงินจัดหาทั้งหมด":302581949.53,"อนุมัติสั่งซื้อจำนวน":0,"อนุมัติสั่งซื้อวงเงิน":0,"ประกาศผู้ชนะจำนวน":0,"ประกาศผู้ชนะวงเงิน":0,"ลงนามสัญญาจำนวน":0,"ลงนามสัญญาวงเงิน":0,"เริ่มจัดหาแล้วจำนวน":0,"เริ่มจัดหาแล้ววงเงิน":0,"อนุมัติรับราคาจำนวน":0,"อนุมัติรับราคาวงเงิน":0,"ผลอนุมัติรับราคา":0,"มูลค่าสัญญา":0,"จัดทำPO":0,"จัดหาPct":0,"รับราคาPct":0,"ลงนามPct":0},{"หน่วยงาน":"คบ.พระพิมล","จำนวนโครงการ":2,"วงเงินจัดหาทั้งหมด":148825600,"อนุมัติสั่งซื้อจำนวน":0,"อนุมัติสั่งซื้อวงเงิน":0,"ประกาศผู้ชนะจำนวน":0,"ประกาศผู้ชนะวงเงิน":0,"ลงนามสัญญาจำนวน":0,"ลงนามสัญญาวงเงิน":0,"เริ่มจัดหาแล้วจำนวน":0,"เริ่มจัดหาแล้ววงเงิน":0,"อนุมัติรับราคาจำนวน":0,"อนุมัติรับราคาวงเงิน":0,"ผลอนุมัติรับราคา":0,"มูลค่าสัญญา":0,"จัดทำPO":0,"จัดหาPct":0,"รับราคาPct":0,"ลงนามPct":0},{"หน่วยงาน":"คป.สมุทรสาคร","จำนวนโครงการ":5,"วงเงินจัดหาทั้งหมด":145896015,"อนุมัติสั่งซื้อจำนวน":0,"อนุมัติสั่งซื้อวงเงิน":0,"ประกาศผู้ชนะจำนวน":4,"ประกาศผู้ชนะวงเงิน":9085754.3,"ลงนามสัญญาจำนวน":0,"ลงนามสัญญาวงเงิน":0,"เริ่มจัดหาแล้วจำนวน":11,"เริ่มจัดหาแล้ววงเงิน":32154669.6,"อนุมัติรับราคาจำนวน":11,"อนุมัติรับราคาวงเงิน":32154669.6,"ผลอนุมัติรับราคา":9085754.3,"มูลค่าสัญญา":0,"จัดทำPO":0,"จัดหาPct":22.05,"รับราคาPct":6.23,"ลงนามPct":0},{"หน่วยงาน":"คป.ปทุมธานี","จำนวนโครงการ":14,"วงเงินจัดหาทั้งหมด":8153000,"อนุมัติสั่งซื้อจำนวน":0,"อนุมัติสั่งซื้อวงเงิน":0,"ประกาศผู้ชนะจำนวน":0,"ประกาศผู้ชนะวงเงิน":0,"ลงนามสัญญาจำนวน":9,"ลงนามสัญญาวงเงิน":2634000,"เริ่มจัดหาแล้วจำนวน":0,"เริ่มจัดหาแล้ววงเงิน":0,"อนุมัติรับราคาจำนวน":0,"อนุมัติรับราคาวงเงิน":0,"ผลอนุมัติรับราคา":0,"มูลค่าสัญญา":0,"จัดทำPO":0,"จัดหาPct":32.31,"รับราคาPct":0,"ลงนามPct":0},{"หน่วยงาน":"คป.นนทบุรี","จำนวนโครงการ":20,"วงเงินจัดหาทั้งหมด":7893200,"อนุมัติสั่งซื้อจำนวน":0,"อนุมัติสั่งซื้อวงเงิน":0,"ประกาศผู้ชนะจำนวน":41,"ประกาศผู้ชนะวงเงิน":3408915.75,"ลงนามสัญญาจำนวน":0,"ลงนามสัญญาวงเงิน":0,"เริ่มจัดหาแล้วจำนวน":41,"เริ่มจัดหาแล้ววงเงิน":3408915.75,"อนุมัติรับราคาจำนวน":41,"อนุมัติรับราคาวงเงิน":3408915.75,"ผลอนุมัติรับราคา":3404683.16,"มูลค่าสัญญา":0,"จัดทำPO":0,"จัดหาPct":60.09,"รับราคาPct":43.19,"ลงนามPct":0},{"หน่วยงาน":"คป.สมุทรปราการ","จำนวนโครงการ":17,"วงเงินจัดหาทั้งหมด":7593359,"อนุมัติสั่งซื้อจำนวน":0,"อนุมัติสั่งซื้อวงเงิน":0,"ประกาศผู้ชนะจำนวน":0,"ประกาศผู้ชนะวงเงิน":0,"ลงนามสัญญาจำนวน":0,"ลงนามสัญญาวงเงิน":0,"เริ่มจัดหาแล้วจำนวน":0,"เริ่มจัดหาแล้ววงเงิน":0,"อนุมัติรับราคาจำนวน":0,"อนุมัติรับราคาวงเงิน":0,"ผลอนุมัติรับราคา":0,"มูลค่าสัญญา":0,"จัดทำPO":0,"จัดหาPct":0,"รับราคาPct":0,"ลงนามPct":0},{"หน่วยงาน":"คส.ชป.11","จำนวนโครงการ":8,"วงเงินจัดหาทั้งหมด":207736000,"อนุมัติสั่งซื้อจำนวน":0,"อนุมัติสั่งซื้อวงเงิน":0,"ประกาศผู้ชนะจำนวน":7,"ประกาศผู้ชนะวงเงิน":9785754.3,"ลงนามสัญญาจำนวน":0,"ลงนามสัญญาวงเงิน":0,"เริ่มจัดหาแล้วจำนวน":7,"เริ่มจัดหาแล้ววงเงิน":9785754.3,"อนุมัติรับราคาจำนวน":7,"อนุมัติรับราคาวงเงิน":9785754.3,"ผลอนุมัติรับราคา":9780686.18,"มูลค่าสัญญา":0,"จัดทำPO":0,"จัดหาPct":4.71,"รับราคาPct":4.71,"ลงนามPct":0},{"หน่วยงาน":"สชป.11","จำนวนโครงการ":7,"วงเงินจัดหาทั้งหมด":39715088.32,"อนุมัติสั่งซื้อจำนวน":0,"อนุมัติสั่งซื้อวงเงิน":0,"ประกาศผู้ชนะจำนวน":0,"ประกาศผู้ชนะวงเงิน":0,"ลงนามสัญญาจำนวน":0,"ลงนามสัญญาวงเงิน":0,"เริ่มจัดหาแล้วจำนวน":0,"เริ่มจัดหาแล้ววงเงิน":0,"อนุมัติรับราคาจำนวน":0,"อนุมัติรับราคาวงเงิน":0,"ผลอนุมัติรับราคา":0,"มูลค่าสัญญา":0,"จัดทำPO":0,"จัดหาPct":0,"รับราคาPct":0,"ลงนามPct":0}];
+
+// เรียงตาม ลงนามPct มากไปน้อย
+DATA.sort(function(a,b){ return b.ลงนามPct - a.ลงนามPct; });
+
+function fmtN(n){ if(!n) return '—'; return Number(n).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:0}); }
+function fmtP(n){ if(!n) return '0.00'; return Number(n).toFixed(2); }
+function pctColor(p){ return p>=10?'#10b981':p>=5?'#f59e0b':p>0?'#1d4ed8':'#d1d5db'; }
+function pctClass(p){ return p>=10?'pct-high':p>=1?'pct-mid':'pct-low'; }
+
+// ===== BAR CHART =====
+var maxPct = 100; // แกน X สูงสุด 100% เสมอ
+
+var barHTML = DATA.map(function(d){
+  var p1 = Math.round((d.จัดหาPct||0)/maxPct*100);
+  var p2 = Math.round((d.รับราคาPct||0)/maxPct*100);
+  var p3 = Math.round((d.ลงนามPct||0)/maxPct*100);
+  return '<div class="bar-row">'+
+    '<div class="bar-label">'+d.หน่วยงาน+'</div>'+
+    '<div class="bar-tracks">'+
+      '<div class="bar-track-row">'+
+        '<div class="bar-track"><div class="bar-fill" style="width:'+p1+'%;background:#1d4ed8"></div></div>'+
+        '<div class="bar-pct" style="color:#1d4ed8">'+fmtP(d.จัดหาPct)+'%</div>'+
+      '</div>'+
+      '<div class="bar-track-row">'+
+        '<div class="bar-track"><div class="bar-fill" style="width:'+p2+'%;background:#9d174d"></div></div>'+
+        '<div class="bar-pct" style="color:#9d174d">'+fmtP(d.รับราคาPct)+'%</div>'+
+      '</div>'+
+      '<div class="bar-track-row">'+
+        '<div class="bar-track"><div class="bar-fill" style="width:'+p3+'%;background:#10b981"></div></div>'+
+        '<div class="bar-pct" style="color:#10b981">'+fmtP(d.ลงนามPct)+'%</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}).join('');
+document.getElementById('barChart').innerHTML = barHTML;
+
+// ===== TABLE =====
+var tbHTML = DATA.map(function(d,i){
+  var lPct = d.ลงนามPct||0;
+  var cls = lPct > 0 ? 'highlight' : '';
+  return '<tr class="'+cls+'">'+
+    '<td style="color:#6b7280;font-size:0.7rem;text-align:center">'+(i+1)+'</td>'+
+    '<td class="unit">'+d.หน่วยงาน+'</td>'+
+    '<td class="num">'+fmtN(d.จำนวนโครงการ)+'</td>'+
+    '<td class="num">'+fmtN(d.วงเงินจัดหาทั้งหมด)+'</td>'+
+    '<td class="num">'+fmtN(d.อนุมัติสั่งซื้อจำนวน)+'</td>'+
+    '<td class="num">'+fmtN(d.อนุมัติสั่งซื้อวงเงิน)+'</td>'+
+    '<td class="num">'+fmtN(d.ประกาศผู้ชนะจำนวน)+'</td>'+
+    '<td class="num">'+fmtN(d.ประกาศผู้ชนะวงเงิน)+'</td>'+
+    '<td class="num">'+fmtN(d.ลงนามสัญญาจำนวน)+'</td>'+
+    '<td class="num">'+fmtN(d.ลงนามสัญญาวงเงิน)+'</td>'+
+    '<td class="num">'+fmtN(d.เริ่มจัดหาแล้วจำนวน)+'</td>'+
+    '<td class="num">'+fmtN(d.เริ่มจัดหาแล้ววงเงิน)+'</td>'+
+    '<td class="num">'+fmtN(d.อนุมัติรับราคาจำนวน)+'</td>'+
+    '<td class="num">'+fmtN(d.อนุมัติรับราคาวงเงิน)+'</td>'+
+    '<td class="num">'+fmtN(d.ผลอนุมัติรับราคา)+'</td>'+
+    '<td class="num">'+fmtN(d.มูลค่าสัญญา)+'</td>'+
+    '<td class="num">'+fmtN(d.จัดทำPO)+'</td>'+
+    '<td class="pct '+pctClass(d.จัดหาPct)+'">'+
+      fmtP(d.จัดหาPct)+'%'+
+      '<div class="mini-bar"><div class="mini-fill" style="width:'+Math.min(d.จัดหาPct||0,100)+'%;background:#1d4ed8"></div></div>'+
+    '</td>'+
+    '<td class="pct '+pctClass(d.รับราคาPct)+'">'+
+      fmtP(d.รับราคาPct)+'%'+
+      '<div class="mini-bar"><div class="mini-fill" style="width:'+Math.min(d.รับราคาPct||0,100)+'%;background:#9d174d"></div></div>'+
+    '</td>'+
+    '<td class="pct '+pctClass(lPct)+'" style="font-size:0.82rem">'+
+      '<strong>'+fmtP(lPct)+'%</strong>'+
+      '<div class="mini-bar"><div class="mini-fill" style="width:'+Math.min(lPct,100)+'%;background:#10b981"></div></div>'+
+    '</td>'+
+  '</tr>';
+}).join('');
+document.getElementById('tableBody').innerHTML = tbHTML;
+</script>
+</body>
+</html>
