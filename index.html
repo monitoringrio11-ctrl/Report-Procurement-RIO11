@@ -396,6 +396,8 @@ body.dark-mode .error-banner { background:#450a0a; border-color:#7f1d1d; color:#
 <option value="budget-asc">วงเงิน (น้อย→มาก)</option>
 <option value="status-desc">สถานะ (สูง→ต่ำ)</option>
 <option value="status-asc">สถานะ (ต่ำ→สูง)</option>
+<option value="unit-asc">หน่วยงาน (ก→ฮ)</option>   ← เพิ่มบรรทัดนี้
+<option value="unit-desc">หน่วยงาน (ฮ→ก)</option>  ← เพิ่มบรรทัดนี้
 </select>
 <span aria-live="polite" class="result-count" id="resultCount"></span>
 </div>
@@ -558,6 +560,7 @@ function applyFilters(){
     var va,vb;
     if(sk==='code'){va=a.รหัสงบประมาณ||'';vb=b.รหัสงบประมาณ||'';}
     else if(sk==='budget'){va=a.วงเงินงบประมาณทั้งโครงการ||0;vb=b.วงเงินงบประมาณทั้งโครงการ||0;}
+    else if(sk==='unit'){va=a.หน่วยงาน||'';vb=b.หน่วยงาน||'';}
     else if(sk==='status'){va=(SC[a.สถานะสูงสุด]||SC['']).rank||0;vb=(SC[b.สถานะสูงสุด]||SC['']).rank||0;}
     if(va<vb)return sd==='asc'?-1:1;
     if(va>vb)return sd==='asc'?1:-1;
