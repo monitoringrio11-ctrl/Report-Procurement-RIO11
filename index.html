@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-
+<!-- รายงานการติดตามจัดซื้อจัดจ้าง Ver. 4.2 -->
 <html lang="th">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0" name="viewport"/>
 <meta content="#0f3d7a" name="theme-color"/>
-<title>สรุปรายงานการติดตามจัดซื้อจัดจ้าง</title>
+<title>สรุปรายงานการติดตามจัดซื้อจัดจ้าง (Ver. 4.2)</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -19,8 +19,9 @@
   --hdr: linear-gradient(135deg,#0f3d7a 0%,#1a56a0 100%);
   --font: 'Sarabun','Segoe UI','Helvetica Neue',Arial,sans-serif; --tr: 0.18s ease;
 }
-html { -webkit-text-size-adjust:100%; } html, body { height:100%; }
-body { font-family:var(--font); background:var(--gray-100); color:var(--gray-800); display:-webkit-flex; display:flex; -webkit-flex-direction:column; flex-direction:column; min-height:100%; -webkit-font-smoothing:antialiased; }
+html { -webkit-text-size-adjust:100%; } html, body { width:100%; height:100%; overflow:hidden; }
+/* 3-row grid: header / main / footer — ท้ายชิดขอบล่างเสมอ (ความสูงจริงตั้งด้วย fitToFrame() ด้านล่าง) */
+body { font-family:var(--font); background:var(--gray-100); color:var(--gray-800); display:grid; grid-template-rows:auto minmax(0,1fr) auto; -webkit-font-smoothing:antialiased; }
 button { font-family:var(--font); cursor:pointer; } input, select { font-family:var(--font); }
 
 /* HEADER */
@@ -42,7 +43,7 @@ header { background:var(--hdr); color:#fff; box-shadow:var(--shadow-lg); positio
 .last-update { font-size:0.68rem; opacity:0.72; white-space:nowrap; }
 
 /* MAIN */
-main { -webkit-flex:1; flex:1; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; }
+main { min-height:0; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; }
 .container { max-width:1400px; margin:0 auto; padding:14px 12px 24px; }
 
 /* LOADING */
@@ -116,7 +117,7 @@ td.plans { text-align:center; }
 .no-results .icon { font-size:2.2rem; margin-bottom:10px; }
 
 /* FOOTER */
-footer { text-align:center; padding:14px 12px; font-size:0.71rem; color:var(--gray-600); -webkit-flex-shrink:0; flex-shrink:0; }
+footer { text-align:center; padding:5px 10px; font-size:0.68rem; line-height:1.3; color:var(--gray-600); background:var(--white); border-top:1px solid var(--gray-200); position:relative; z-index:100; }
 footer a { color:var(--primary); text-decoration:none; } footer a:hover { text-decoration:underline; }
 
 /* MODAL */
@@ -263,7 +264,7 @@ body.dark-mode .error-banner { background:#450a0a; border-color:#7f1d1d; color:#
   body:not(.light-mode) tbody tr:hover { background:#1e3a5f; }
   body:not(.light-mode) .dash-slide-wrap { background:#0f172a; }
 }
-@media print { header,.controls,footer,.modal-overlay { display:none !important; } main { overflow:visible; } .table-wrap { box-shadow:none; } }
+@media print { header,.controls,footer,.modal-overlay { display:none !important; } html, body { height:auto !important; overflow:visible !important; } main { overflow:visible; } .table-wrap { box-shadow:none; } }
 
 /* Dark mode toggle button */
 .theme-toggle {
@@ -277,6 +278,32 @@ body.dark-mode .error-banner { background:#450a0a; border-color:#7f1d1d; color:#
   white-space: nowrap; -webkit-tap-highlight-color: transparent;
 }
 .theme-toggle:hover { background: rgba(255,255,255,0.28); }
+
+/* Plan code & Sheet_0 view */
+.btn-sheet0 { background:rgba(139,92,246,0.28); color:#fff; border-color:rgba(167,139,250,0.55); }
+.btn-sheet0:hover { background:rgba(139,92,246,0.45); }
+.btn-sheet0.active { background:#7c3aed; border-color:#c4b5fd; box-shadow:0 0 0 2px rgba(196,181,253,0.35); }
+td.plan-code { font-family:'Courier New',Courier,monospace; font-size:0.73rem; font-weight:700; color:var(--primary); white-space:nowrap; }
+.plan-pill-link { cursor:pointer; transition:transform var(--tr),background var(--tr); }
+.plan-pill-link:hover { transform:scale(1.06); background:#dbeafe; }
+.view-hidden { display:none !important; }
+.s0-banner { background:linear-gradient(135deg,#1e3a8a 0%,#3b82f6 100%); color:#fff; border-radius:var(--radius); padding:10px 14px; margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; box-shadow:var(--shadow); }
+.s0-banner-title { font-size:0.88rem; font-weight:700; display:flex; align-items:center; gap:7px; }
+.s0-banner-sub { font-size:0.72rem; opacity:0.88; }
+.s0-back-btn { background:rgba(255,255,255,0.2); color:#fff; border:1px solid rgba(255,255,255,0.38); border-radius:18px; padding:5px 12px; font-size:0.74rem; font-weight:600; display:inline-flex; align-items:center; gap:5px; transition:background var(--tr); }
+.s0-back-btn:hover { background:rgba(255,255,255,0.32); }
+.s0-table-scroll { overflow-x:auto; overflow-y:auto; max-height:calc(100vh - 235px); -webkit-overflow-scrolling:touch; }
+.s0-table th, .s0-table td { padding:7px 9px; font-size:0.74rem; border-right:1px solid var(--gray-200); }
+.s0-table th:last-child, .s0-table td:last-child { border-right:none; }
+.s0-table thead th { position:sticky; top:0; z-index:15; background:#0f3d7a; color:#fff; font-size:0.72rem; line-height:1.3; text-align:center; vertical-align:middle; }
+.s0-table td.s0-txt { min-width:210px; max-width:300px; line-height:1.38; }
+.s0-table td.s0-nowrap { white-space:nowrap; }
+.s0-table td.s0-date { white-space:nowrap; text-align:center; font-size:0.71rem; color:var(--gray-700); }
+.s0-table td.s0-num { white-space:nowrap; text-align:right; font-weight:700; color:var(--primary-dark); }
+body.dark-mode td.plan-code { color:#93c5fd; }
+body.dark-mode td.budget, body.dark-mode td.unit, body.dark-mode .s0-table td.s0-num { color:#93c5fd; }
+body.dark-mode .s0-table th, body.dark-mode .s0-table td { border-right-color:#374151; }
+body.dark-mode .s0-table td.s0-date { color:#d1d5db; }
 
 </style>
 </head>
@@ -347,8 +374,8 @@ body.dark-mode .error-banner { background:#450a0a; border-color:#7f1d1d; color:#
 <div class="header-inner">
 <div aria-hidden="true" class="header-icon">📋</div>
 <div class="header-text">
-<h1>รายงานการติดตามจัดซื้อจัดจ้าง</h1>
-<p>สรุปตามรหัสงบประมาณ — Real-time จาก Google Sheets | ปีงบประมาณ 2570</p>
+<h1>รายงานการติดตามจัดซื้อจัดจ้าง <span style="font-size:0.68rem;font-weight:600;background:rgba(255,255,255,0.18);padding:2px 8px;border-radius:12px;vertical-align:middle;margin-left:4px">Ver. 4.2</span></h1>
+<p>สรุปตามรหัสงบประมาณและรหัสแผน — Real-time จาก Google Sheets | ปีงบประมาณ 2570</p>
 </div>
 <div class="header-right">
 <span aria-live="polite" class="last-update" id="lastUpdate">-</span>
@@ -356,6 +383,9 @@ body.dark-mode .error-banner { background:#450a0a; border-color:#7f1d1d; color:#
         <span id="themeIcon">🌙</span><span class="btn-label" id="themeLabel"> Dark</span>
       </button>
       <a href="https://monitoringrio11-ctrl.github.io/Report-Procurement-RIO11/chart" target="_blank" rel="noopener" style="text-decoration:none"><button class="hdr-btn" style="background:rgba(16,185,129,0.22);border-color:rgba(16,185,129,0.45);color:#fff;">📈 <span class="btn-label">รายงาน %</span></button></a>
+<button aria-label="แสดงตาราง แผนย่อย" class="hdr-btn btn-sheet0" id="btnSheet0" onclick="toggleSheet0View()">
+        📑 <span class="btn-label" id="btnSheet0Label">ตาราง แผนย่อย</span>
+</button>
 <button aria-label="เปิดแดชบอร์ดสรุป" class="hdr-btn btn-dash" onclick="openDashboard()">
         📊 <span class="btn-label">สรุปแดชบอร์ด</span>
 </button>
@@ -369,11 +399,14 @@ body.dark-mode .error-banner { background:#450a0a; border-color:#7f1d1d; color:#
 <main>
 <div class="container">
 <div class="error-banner hidden" id="errorBanner" role="alert">⚠️ <span id="errorMsg"></span></div>
+
+<!-- ===== VIEW 1: SUMMARY TABLE (Sheet_0 (1)) ===== -->
+<div id="summaryView">
 <div class="stats-grid" id="statsGrid"></div>
 <div class="controls" role="search">
 <div class="search-wrap">
 <svg aria-hidden="true" fill="none" height="14" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="14"><circle cx="11" cy="11" r="8"></circle><path d="M21 21l-4.35-4.35"></path></svg>
-<input aria-label="ค้นหา" autocomplete="off" autocorrect="off" id="searchInput" placeholder="ค้นหา รหัสงบประมาณ / หน่วยงาน / ชื่อโครงการ..." spellcheck="false" type="search"/>
+<input aria-label="ค้นหา" autocomplete="off" autocorrect="off" id="searchInput" placeholder="ค้นหา รหัสงบประมาณ / รหัสแผน / หน่วยงาน / ชื่อโครงการ..." spellcheck="false" type="search"/>
 </div>
 <select aria-label="กรองตามสถานะ" class="ctrl-select" id="statusFilter">
 <option value="">ทุกสถานะ</option>
@@ -393,6 +426,8 @@ body.dark-mode .error-banner { background:#450a0a; border-color:#7f1d1d; color:#
 <select aria-label="กรองตามหน่วยงาน" class="ctrl-select" id="unitFilter"><option value="">ทุกหน่วยงาน</option></select>
 <select aria-label="เรียงลำดับ" class="ctrl-select" id="sortSelect">
 <option value="code-asc">รหัสงบประมาณ ↑</option>
+<option value="plan-asc">รหัสแผน ↑</option>
+<option value="plan-desc">รหัสแผน ↓</option>
 <option value="budget-desc">วงเงิน (มาก→น้อย)</option>
 <option value="budget-asc">วงเงิน (น้อย→มาก)</option>
 <option value="status-desc">สถานะ (สูง→ต่ำ)</option>
@@ -407,7 +442,7 @@ body.dark-mode .error-banner { background:#450a0a; border-color:#7f1d1d; color:#
 <table>
 <thead>
 <tr>
-<th scope="col">#</th><th scope="col">รหัสงบประมาณ</th><th scope="col">หน่วยงาน</th>
+<th scope="col">#</th><th scope="col">รหัสงบประมาณ</th><th scope="col">รหัสแผน</th><th scope="col">หน่วยงาน</th>
 <th scope="col">ชื่อโครงการ</th><th scope="col" style="text-align:right">วงเงินงบประมาณ (บาท)</th>
 <th scope="col" style="text-align:center">แผนย่อย</th><th scope="col">สถานะล่าสุด</th><th scope="col">ความคืบหน้า</th>
 </tr>
@@ -420,11 +455,81 @@ body.dark-mode .error-banner { background:#450a0a; border-color:#7f1d1d; color:#
 </div>
 </div>
 </div>
+
+<!-- ===== VIEW 2: SHEET_0 DETAILED TABLE ===== -->
+<div class="view-hidden" id="sheet0View">
+<div class="s0-banner">
+<div>
+<div class="s0-banner-title">📑 ตาราง แผนย่อย — ข้อมูลแผนย่อยที่เริ่มจัดซื้อจัดจ้างแล้ว</div>
+<div class="s0-banner-sub">แสดงรายละเอียดทุกขั้นตอน A01–A11, สัญญา และเอกสารสำรองเงิน (PO) — เลื่อนตารางซ้าย-ขวาเพื่อดูครบทุกคอลัมน์</div>
+</div>
+<button class="s0-back-btn" onclick="toggleSheet0View(false)" type="button">⬅️ กลับหน้าสรุปโครงการ</button>
+</div>
+<div class="controls" role="search">
+<div class="search-wrap">
+<svg aria-hidden="true" fill="none" height="14" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="14"><circle cx="11" cy="11" r="8"></circle><path d="M21 21l-4.35-4.35"></path></svg>
+<input aria-label="ค้นหาในตาราง แผนย่อย" autocomplete="off" autocorrect="off" id="s0SearchInput" placeholder="ค้นหา รหัสงบประมาณ / รหัสแผน (ผ) / ชื่อโครงการ..." spellcheck="false" type="search"/>
+</div>
+<select aria-label="กรองตามชื่อหน่วยงาน" class="ctrl-select" id="s0UnitFilter"><option value="">ทุกหน่วยงาน</option></select>
+<button class="ctrl-select" id="s0ClearBtn" onclick="clearSheet0Filters()" style="backgroundImage:none;padding:8px 12px;font-weight:600;color:var(--primary)" type="button">ล้างตัวกรอง</button>
+<span aria-live="polite" class="result-count" id="s0ResultCount"></span>
+</div>
+<div aria-label="ตาราง แผนย่อย" class="table-wrap" role="region">
+<div class="s0-table-scroll">
+<table class="s0-table">
+<thead>
+<tr>
+<th scope="col">#</th>
+<th scope="col">ชื่อหน่วยงาน</th>
+<th scope="col">แหล่งงบประมาณ</th>
+<th scope="col">ประเภทงบ</th>
+<th scope="col">รหัสงบประมาณ</th>
+<th scope="col">รหัสแผน (ผ)</th>
+<th scope="col">ชื่อโครงการ</th>
+<th scope="col">วงเงินงบประมาณ</th>
+<th scope="col">ชื่อแผนย่อย</th>
+<th scope="col">วงเงิน (ผย.)</th>
+<th scope="col">วิธีการจัดหา</th>
+<th scope="col">ชื่อเรื่องดำเนินการ</th>
+<th scope="col">สถานะการจัดซื้อ</th>
+<th scope="col">A01-เห็นชอบแผน</th>
+<th scope="col">A02-ประกาศแผน</th>
+<th scope="col">A03-รายงานความต้องการพัสดุ</th>
+<th scope="col">A04-รายงานขอซื้อขอจ้าง</th>
+<th scope="col">A05-ประกาศ TOR</th>
+<th scope="col">A06-(1)วันที่ประกาศเชิญชวน</th>
+<th scope="col">A06-(2)วันที่ยื่นข้อเสนอ</th>
+<th scope="col">A07-รายงานผลพิจารณา</th>
+<th scope="col">A08-อนุมัติสั่งซื้อสั่งจ้าง</th>
+<th scope="col">A09-(1)ประกาศผู้ชนะ</th>
+<th scope="col">A09-(2)วันที่ครบอุทธรณ์</th>
+<th scope="col">A09-(3)ผลการจัดหา</th>
+<th scope="col">A09-(4) ผู้ชนะการเสนอราคา</th>
+<th scope="col">A10-วันที่ลงนามสัญญา</th>
+<th scope="col">เลขที่สัญญา</th>
+<th scope="col">อายุสัญญา</th>
+<th scope="col">วันเริ่มอายุสัญญา</th>
+<th scope="col">วันครบอายุสัญญา</th>
+<th scope="col">สถานะสัญญา</th>
+<th scope="col">เลขเอกสารสำรองเงิน (PO)</th>
+<th scope="col">วงเงิน PO</th>
+</tr>
+</thead>
+<tbody id="s0TableBody"></tbody>
+</table>
+<div class="no-results" id="s0NoResults" role="status" style="display:none">
+<div aria-hidden="true" class="icon">🔍</div><p id="s0NoResultsMsg">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</p>
+</div>
+</div>
+</div>
+</div>
+
+</div>
 </main>
 <footer>
   ข้อมูลจาก <a href="https://docs.google.com/spreadsheets/d/1pGGgMEfZYYiBqiO3zwOCXof8oZKExi6rIidmddgsVLQ/edit" rel="noopener noreferrer" target="_blank">Google Sheets (PMS)</a>
   | <a href="https://pages.github.com" rel="noopener noreferrer" target="_blank">GitHub Pages</a>
-  | Backend: Google Apps Script
+  | Backend: Google Apps Script | <strong>Ver. 4.2</strong>
 </footer>
 <script crossorigin="anonymous" referrerpolicy="no-referrer" src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
@@ -453,13 +558,35 @@ var SC = {
 var STATUS_CODES = ['A11.จัดทำ PO','A10.วันที่ลงนามสัญญา','A09.ประกาศผู้ชนะ','A08.อนุมัติสั่งซื้อสั่งจ้าง','A07.รายงานผลพิจารณา','A06.ประกาศเชิญชวน','A05.ประกาศ TOR','A04.รายงานขอซื้อขอจ้าง','A03.รายงานความต้องการพัสดุ','A02.ประกาศแผน','A01.เห็นชอบแผน','A00.จัดทำแผน(ยังไม่เริ่มดำเนินการจัดซื้อจัดจ้าง)',''];
 
 function getCode(s){ if(!s)return''; var m=s.match(/^(A\d{2})\./); return m?m[1]:''; }
-function getCfg(s){ return SC[s]||SC['']; }
+function getCfg(s){
+  if(SC[s]) return SC[s];
+  var code = getCode(s);
+  if(code){
+    for(var k in SC){ if(SC[k].code === code) return SC[k]; }
+  }
+  return SC[''];
+}
 function progColor(p){ return p>=100?'#10b981':p>=73?'#f59e0b':p>=45?'#3b82f6':'#94a3b8'; }
 function fmtB(n){ if(!n&&n!==0)return'-'; return Number(n).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:0}); }
+function fmtMoneyOpt(n){ if(!n||Number(n)<=0)return'-'; return Number(n).toLocaleString('th-TH',{minimumFractionDigits:0,maximumFractionDigits:2}); }
 function fmtM(n){ return (n/1e6).toFixed(2)+' M'; }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-var ALL_DATA=[], sortKey='code-asc';
+var ALL_DATA=[], SHEET0_DATA=[], sortKey='code-asc', isSheet0View=false;
+
+function populateSheet0Units(){
+  var s0Units=SHEET0_DATA.map(function(d){return d.หน่วยงาน;}).filter(Boolean);
+  s0Units=s0Units.filter(function(v,i,a){return a.indexOf(v)===i;}).sort();
+  var s0UnitSel=document.getElementById('s0UnitFilter');
+  var cur=s0UnitSel.value;
+  s0UnitSel.innerHTML='<option value="">ทุกหน่วยงาน</option>';
+  s0Units.forEach(function(u){
+    var o=document.createElement('option');
+    o.value=u; o.textContent=u;
+    if(u===cur) o.selected=true;
+    s0UnitSel.appendChild(o);
+  });
+}
 
 // ===== LOAD DATA =====
 function loadData(){
@@ -476,6 +603,12 @@ function loadData(){
     try {
       if(!result.success) throw new Error(result.error||'GAS error');
       ALL_DATA=result.data||[];
+      if(Array.isArray(result.sheet0)){
+        SHEET0_DATA=result.sheet0;
+        populateSheet0Units();
+      } else {
+        loadSheet0Fallback();
+      }
       var units=ALL_DATA.map(function(d){return d.หน่วยงาน;}).filter(Boolean);
       units=units.filter(function(v,i,a){return a.indexOf(v)===i;}).sort();
       var unitSel=document.getElementById('unitFilter');
@@ -485,10 +618,12 @@ function loadData(){
       var d=new Date(result.updatedAt);
       document.getElementById('lastUpdate').textContent='อัปเดต '+d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
       applyFilters();
+      if(isSheet0View) applySheet0Filters();
     } catch(err) {
       document.getElementById('errorMsg').textContent='ไม่สามารถดึงข้อมูลได้: '+err.message;
       errBanner.classList.remove('hidden');
       if(ALL_DATA.length>0) applyFilters();
+      if(isSheet0View) applySheet0Filters();
     }
     overlay.classList.add('hidden');
     spinIcon.classList.remove('spinning');
@@ -506,16 +641,32 @@ function loadData(){
   document.body.appendChild(script);
 }
 
-// วางทับฟังก์ชัน renderStats เดิมใน index.html ทั้งฟังก์ชัน
-// (ตั้งแต่ function renderStats(data){ ไปจนถึง } ก่อน function renderTable)
-// จุดที่แก้มีบรรทัดเดียว: var none = ... (นับเฉพาะ A00 ไม่รวมสถานะว่าง)
+function loadSheet0Fallback(){
+  var cbName = 'gasSheet0Cb_' + Date.now();
+  var sc = document.createElement('script');
+  window[cbName] = function(res){
+    delete window[cbName];
+    if(sc.parentNode) sc.parentNode.removeChild(sc);
+    if(res && res.success && Array.isArray(res.data)){
+      SHEET0_DATA = res.data;
+      populateSheet0Units();
+      if(isSheet0View) applySheet0Filters();
+    }
+  };
+  sc.onerror = function(){
+    delete window[cbName];
+    if(sc.parentNode) sc.parentNode.removeChild(sc);
+  };
+  sc.src = GAS_URL + '?action=sheet0&callback=' + cbName;
+  document.body.appendChild(sc);
+}
 
 function renderStats(data){
   var total=data.length;
   var totalB=data.reduce(function(s,d){return s+(d.วงเงินงบประมาณทั้งโครงการ||0);},0);
   var done=data.filter(function(d){return (d.สถานะสูงสุด||'').indexOf('A11.')===0;}).length;
   var inProg=data.filter(function(d){var s=d.สถานะสูงสุด||'';return s&&s.indexOf('A11.')!==0&&s.indexOf('A00.')!==0;}).length;
-  var none=data.filter(function(d){return (d.สถานะสูงสุด||'').indexOf('A00.')===0;}).length;   // ← แก้บรรทัดนี้
+  var none=data.filter(function(d){return (d.สถานะสูงสุด||'').indexOf('A00.')===0;}).length;
   document.getElementById('statsGrid').innerHTML=
     '<div class="stat-card"><div class="stat-icon si-blue">📁</div><div><div class="stat-value">'+total.toLocaleString()+'</div><div class="stat-label">โครงการทั้งหมด</div></div></div>'+
     '<div class="stat-card"><div class="stat-icon si-purple">💰</div><div><div class="stat-value" style="font-size:clamp(0.85rem,2vw,1rem)">'+fmtM(totalB)+'</div><div class="stat-label">วงเงินรวม (บาท)</div></div></div>'+
@@ -533,15 +684,20 @@ function renderTable(data){
   tbody.innerHTML=data.map(function(row,i){
     var cfg=getCfg(row.สถานะสูงสุด);
     var pct=cfg.pct; var color=progColor(pct);
-    var code=getCode(row.สถานะสูงสุด);
     var label=row.สถานะสูงสุด?row.สถานะสูงสุด.replace(/^A\d{2}\./,''):'ยังไม่เริ่มดำเนินการ'; if(row.สถานะสูงสุด) label=(row.สถานะสูงสุด.match(/^(A\d{2})/)||['',''])[1]+' '+label;
+    var planCode=row.รหัสแผน||'-';
+    var subCnt=row.จำนวนแผนย่อย||0;
+    var planPillHtml=subCnt>0 && planCode!=='-'
+      ? '<span class="plan-pill plan-pill-link" title="คลิกเพื่อดูรายการแผนย่อยของ '+esc(planCode)+' ในตาราง แผนย่อย" onclick="openSheet0ForPlan(\''+esc(planCode)+'\')">'+subCnt+' 🔍</span>'
+      : '<span class="plan-pill">'+subCnt+'</span>';
     return '<tr>'+
       '<td style="color:var(--gray-500);font-size:0.7rem;text-align:center;white-space:nowrap">'+(i+1)+'</td>'+
       '<td class="code">'+esc(row.รหัสงบประมาณ||'-')+'</td>'+
+      '<td class="plan-code">'+esc(planCode)+'</td>'+
       '<td class="unit">'+esc(row.หน่วยงาน||'-')+'</td>'+
       '<td class="project">'+esc(row.ชื่อโครงการ||'-')+'</td>'+
       '<td class="budget">'+fmtB(row.วงเงินงบประมาณทั้งโครงการ)+'</td>'+
-      '<td class="plans"><span class="plan-pill">'+row.จำนวนแผนย่อย+'</span></td>'+
+      '<td class="plans">'+planPillHtml+'</td>'+
       '<td><span class="badge '+cfg.cls+'"><span class="badge-dot"></span>'+esc(label)+'</span></td>'+
       '<td style="min-width:100px"><div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" style="width:'+pct+'%;background:'+color+'"></div></div><span style="font-size:0.66rem;color:var(--gray-600);min-width:24px">'+pct+'%</span></div></td>'+
     '</tr>';
@@ -549,13 +705,16 @@ function renderTable(data){
 }
 
 function applyFilters(){
-  var search=document.getElementById('searchInput').value.toLowerCase();
+  var search=document.getElementById('searchInput').value.toLowerCase().trim();
   var statusF=document.getElementById('statusFilter').value;
   var unitF=document.getElementById('unitFilter').value;
   var parts=sortKey.split('-'); var sk=parts[0]; var sd=parts[1];
   var filtered=ALL_DATA.filter(function(row){
-    var ms=!search||(row.รหัสงบประมาณ||'').toLowerCase().indexOf(search)>=0||(row.หน่วยงาน||'').toLowerCase().indexOf(search)>=0||(row.ชื่อโครงการ||'').toLowerCase().indexOf(search)>=0;
-    var code=getCode(row.สถานะสูงสุด);
+    var ms=!search||
+      (row.รหัสงบประมาณ||'').toLowerCase().indexOf(search)>=0||
+      (row.รหัสแผน||'').toLowerCase().indexOf(search)>=0||
+      (row.หน่วยงาน||'').toLowerCase().indexOf(search)>=0||
+      (row.ชื่อโครงการ||'').toLowerCase().indexOf(search)>=0;
     var mst=!statusF||((row.สถานะสูงสุด||'').indexOf(statusF)===0);
     var mu=!unitF||row.หน่วยงาน===unitF;
     return ms&&mst&&mu;
@@ -563,6 +722,7 @@ function applyFilters(){
   filtered.sort(function(a,b){
     var va,vb;
     if(sk==='code'){va=a.รหัสงบประมาณ||'';vb=b.รหัสงบประมาณ||'';}
+    else if(sk==='plan'){va=a.รหัสแผน||'';vb=b.รหัสแผน||'';}
     else if(sk==='budget'){va=a.วงเงินงบประมาณทั้งโครงการ||0;vb=b.วงเงินงบประมาณทั้งโครงการ||0;}
     else if(sk==='unit'){va=a.หน่วยงาน||'';vb=b.หน่วยงาน||'';}
     else if(sk==='status'){va=(SC[a.สถานะสูงสุด]||SC['']).rank||0;vb=(SC[b.สถานะสูงสุด]||SC['']).rank||0;}
@@ -574,10 +734,118 @@ function applyFilters(){
   renderTable(filtered);
 }
 
+// ===== SHEET_0 TABLE VIEW =====
+function toggleSheet0View(forceState){
+  isSheet0View = typeof forceState === 'boolean' ? forceState : !isSheet0View;
+  var sumView = document.getElementById('summaryView');
+  var s0View  = document.getElementById('sheet0View');
+  var btn     = document.getElementById('btnSheet0');
+  var lbl     = document.getElementById('btnSheet0Label');
+  if(isSheet0View){
+    sumView.classList.add('view-hidden');
+    s0View.classList.remove('view-hidden');
+    btn.classList.add('active');
+    lbl.textContent = 'หน้าสรุปโครงการ';
+    applySheet0Filters();
+  } else {
+    s0View.classList.add('view-hidden');
+    sumView.classList.remove('view-hidden');
+    btn.classList.remove('active');
+    lbl.textContent = 'ตาราง แผนย่อย';
+  }
+}
+
+function openSheet0ForPlan(planCode){
+  document.getElementById('s0SearchInput').value = planCode || '';
+  document.getElementById('s0UnitFilter').value = '';
+  toggleSheet0View(true);
+}
+
+function clearSheet0Filters(){
+  document.getElementById('s0SearchInput').value = '';
+  document.getElementById('s0UnitFilter').value = '';
+  applySheet0Filters();
+}
+
+function applySheet0Filters(){
+  var search = document.getElementById('s0SearchInput').value.toLowerCase().trim();
+  var unitF  = document.getElementById('s0UnitFilter').value;
+  var filtered = SHEET0_DATA.filter(function(row){
+    var ms = !search ||
+      (row.รหัสงบประมาณ||'').toLowerCase().indexOf(search)>=0 ||
+      (row.รหัสแผน||'').toLowerCase().indexOf(search)>=0 ||
+      (row.ชื่อโครงการ||'').toLowerCase().indexOf(search)>=0;
+    var mu = !unitF || row.หน่วยงาน === unitF;
+    return ms && mu;
+  });
+  renderSheet0Table(filtered);
+}
+
+function renderSheet0Table(data){
+  var tbody = document.getElementById('s0TableBody');
+  var noR   = document.getElementById('s0NoResults');
+  var noMsg = document.getElementById('s0NoResultsMsg');
+  document.getElementById('s0ResultCount').textContent = 'แสดง ' + data.length.toLocaleString() + ' จาก ' + SHEET0_DATA.length.toLocaleString() + ' แผนย่อย';
+  if(!data.length){
+    tbody.innerHTML = '';
+    noR.style.display = 'block';
+    noMsg.textContent = SHEET0_DATA.length === 0
+      ? 'ยังไม่มีข้อมูลตาราง แผนย่อย (กรุณาอัปเดตและ Deploy Code.gs เวอร์ชัน 4.2 บน Google Apps Script)'
+      : 'ไม่พบข้อมูลแผนย่อยที่ตรงกับเงื่อนไขการค้นหา';
+    return;
+  }
+  noR.style.display = 'none';
+  tbody.innerHTML = data.map(function(r, i){
+    var st = r.สถานะการจัดซื้อ || '';
+    var cfg = getCfg(st);
+    var stHtml = st
+      ? '<span class="badge '+cfg.cls+'"><span class="badge-dot"></span>'+esc(st)+'</span>'
+      : '-';
+    return '<tr>'+
+      '<td class="s0-date" style="color:var(--gray-500)">'+(i+1)+'</td>'+
+      '<td class="unit s0-nowrap">'+esc(r.หน่วยงาน||'-')+'</td>'+
+      '<td class="s0-nowrap">'+esc(r.แหล่งงบประมาณ||'-')+'</td>'+
+      '<td class="s0-nowrap">'+esc(r.ประเภทงบ||'-')+'</td>'+
+      '<td class="code s0-nowrap">'+esc(r.รหัสงบประมาณ||'-')+'</td>'+
+      '<td class="plan-code s0-nowrap">'+esc(r.รหัสแผน||'-')+'</td>'+
+      '<td class="s0-txt">'+esc(r.ชื่อโครงการ||'-')+'</td>'+
+      '<td class="s0-num">'+fmtMoneyOpt(r.วงเงินงบประมาณ)+'</td>'+
+      '<td class="s0-txt">'+esc(r.ชื่อแผนย่อย||'-')+'</td>'+
+      '<td class="s0-num">'+fmtMoneyOpt(r.วงเงินแผนย่อย)+'</td>'+
+      '<td class="s0-nowrap">'+esc(r.วิธีการจัดหา||'-')+'</td>'+
+      '<td class="s0-txt">'+esc(r.ชื่อเรื่องดำเนินการ||'-')+'</td>'+
+      '<td class="s0-nowrap">'+stHtml+'</td>'+
+      '<td class="s0-date">'+esc(r.a01||'-')+'</td>'+
+      '<td class="s0-date">'+esc(r.a02||'-')+'</td>'+
+      '<td class="s0-date">'+esc(r.a03||'-')+'</td>'+
+      '<td class="s0-date">'+esc(r.a04||'-')+'</td>'+
+      '<td class="s0-date">'+esc(r.a05||'-')+'</td>'+
+      '<td class="s0-date">'+esc(r.a06_1||'-')+'</td>'+
+      '<td class="s0-date">'+esc(r.a06_2||'-')+'</td>'+
+      '<td class="s0-date">'+esc(r.a07||'-')+'</td>'+
+      '<td class="s0-date">'+esc(r.a08||'-')+'</td>'+
+      '<td class="s0-date">'+esc(r.a09_1||'-')+'</td>'+
+      '<td class="s0-date">'+esc(r.a09_2||'-')+'</td>'+
+      '<td class="s0-num">'+fmtMoneyOpt(r.a09_3)+'</td>'+
+      '<td class="s0-nowrap">'+esc(r.a09_4||'-')+'</td>'+
+      '<td class="s0-date">'+esc(r.a10||'-')+'</td>'+
+      '<td class="s0-nowrap">'+esc(r.เลขที่สัญญา||'-')+'</td>'+
+      '<td class="s0-nowrap" style="text-align:center">'+esc(r.อายุสัญญา||'-')+'</td>'+
+      '<td class="s0-date">'+esc(r.วันเริ่มอายุสัญญา||'-')+'</td>'+
+      '<td class="s0-date">'+esc(r.วันครบอายุสัญญา||'-')+'</td>'+
+      '<td class="s0-nowrap" style="text-align:center">'+esc(r.สถานะสัญญา||'-')+'</td>'+
+      '<td class="code s0-nowrap" style="text-align:center">'+esc(r.เลขPO||'-')+'</td>'+
+      '<td class="s0-num">'+fmtMoneyOpt(r.วงเงินPO)+'</td>'+
+    '</tr>';
+  }).join('');
+}
+
 document.getElementById('searchInput').addEventListener('input',applyFilters);
 document.getElementById('statusFilter').addEventListener('change',applyFilters);
 document.getElementById('unitFilter').addEventListener('change',applyFilters);
 document.getElementById('sortSelect').addEventListener('change',function(e){sortKey=e.target.value;applyFilters();});
+document.getElementById('s0SearchInput').addEventListener('input',applySheet0Filters);
+document.getElementById('s0UnitFilter').addEventListener('change',applySheet0Filters);
 document.addEventListener('keydown',function(e){if(e.key==='Escape') closeDashboard();});
 document.getElementById('dashModal').addEventListener('click',function(e){if(e.target===this) closeDashboard();});
 
@@ -780,6 +1048,20 @@ function toggleTheme() {
     if (label) label.textContent = 'Light';
   }
 })();
+
+// ===== FIT TO FRAME (กันช่องว่างใต้แถบท้ายเมื่อฝังใน Canva / iframe) =====
+function fitToFrame() {
+  var h = window.innerHeight || document.documentElement.clientHeight;
+  if (h > 0) {
+    document.documentElement.style.height = h + 'px';
+    document.body.style.height = h + 'px';
+  }
+}
+fitToFrame();
+window.addEventListener('resize', fitToFrame);
+window.addEventListener('load', fitToFrame);
+setTimeout(fitToFrame, 300);
+setTimeout(fitToFrame, 1200);
 
 loadData();
 </script>
