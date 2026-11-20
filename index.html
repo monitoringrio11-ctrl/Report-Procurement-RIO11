@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<!-- รายงานการติดตามจัดซื้อจัดจ้าง งบพ.ร.บ. งบลงทุน (ค่าครุภัณฑ์ ที่ดินและสิ่งก่อสร้าง) สชป.11 Ver. 4.4 -->
+<!-- รายงานการติดตามจัดซื้อจัดจ้าง งบพ.ร.บ. งบลงทุน (ค่าครุภัณฑ์ ที่ดินและสิ่งก่อสร้าง) สชป.11 Ver. 4.5 -->
 <html lang="th">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" name="viewport"/>
 <meta content="#0f3d7a" name="theme-color"/>
-<title>รายงานการติดตามจัดซื้อจัดจ้าง งบพ.ร.บ. งบลงทุน (ค่าครุภัณฑ์ ที่ดินและสิ่งก่อสร้าง) สชป.11 (Ver. 4.4)</title>
+<title>รายงานการติดตามจัดซื้อจัดจ้าง งบพ.ร.บ. งบลงทุน (ค่าครุภัณฑ์ ที่ดินและสิ่งก่อสร้าง) สชป.11 (Ver. 4.5)</title>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
@@ -396,7 +396,163 @@ body.dark-mode .error-banner { background:#450a0a; border-color:#7f1d1d; color:#
   body:not(.light-mode) tbody tr:hover { background:#1e3a5f; }
   body:not(.light-mode) .dash-slide-wrap { background:#0f172a; }
 }
-@media print { header,.controls,footer,.modal-overlay { display:none !important; } html, body { height:auto !important; overflow:visible !important; } main { overflow:visible; } .table-wrap, .table-scroll, .s0-table-scroll { box-shadow:none; max-height:none !important; overflow:visible !important; } }
+@media print {
+  @page { size: A4 landscape; margin: 7mm 6mm; }
+  header, .controls, .s0-banner, footer, .modal-overlay, .loading-overlay, .error-banner { display:none !important; }
+  html, body {
+    width:100% !important; height:auto !important; min-height:0 !important;
+    overflow:visible !important; background:#ffffff !important; color:#111827 !important;
+    display:block !important; -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important;
+  }
+  main, .container, #summaryView, #sheet0View, .table-wrap, .table-scroll, .s0-table-scroll {
+    width:100% !important; max-width:none !important; height:auto !important;
+    max-height:none !important; min-height:0 !important; overflow:visible !important;
+    box-shadow:none !important; border-radius:0 !important; padding:0 !important; margin:0 !important;
+    background:#ffffff !important;
+  }
+  .view-hidden { display:none !important; }
+  #printHeader { display:block !important; margin-bottom:8px !important; padding-bottom:6px !important; border-bottom:2px solid #0f3d7a !important; }
+  .stats-grid {
+    display:grid !important; grid-template-columns:repeat(5,1fr) !important;
+    gap:6px !important; margin-bottom:8px !important; page-break-inside:avoid !important; break-inside:avoid !important;
+  }
+  .stat-card {
+    background:#f8fafc !important; border:1px solid #cbd5e1 !important;
+    box-shadow:none !important; padding:6px 8px !important; border-radius:6px !important;
+  }
+  .stat-card:last-child { grid-column:auto !important; }
+  .stat-icon { width:26px !important; height:26px !important; font-size:13px !important; }
+  .stat-value { font-size:11pt !important; color:#0f3d7a !important; }
+  .stat-label { font-size:7.5pt !important; color:#334155 !important; }
+  table {
+    width:100% !important; border-collapse:collapse !important;
+    table-layout:fixed !important; page-break-inside:auto !important;
+    background:#ffffff !important; color:#111827 !important;
+  }
+  thead {
+    display:table-header-group !important; position:static !important;
+    background:#0f3d7a !important; color:#ffffff !important;
+  }
+  tbody { display:table-row-group !important; }
+  tr { page-break-inside:avoid !important; break-inside:avoid !important; }
+  thead th {
+    position:static !important; background:#0f3d7a !important; color:#ffffff !important;
+    border:1px solid #0f3d7a !important; white-space:normal !important;
+    word-break:break-word !important; overflow-wrap:anywhere !important;
+    vertical-align:middle !important;
+  }
+  tbody td {
+    border:1px solid #cbd5e1 !important; color:#111827 !important;
+    background:#ffffff !important; white-space:normal !important;
+    word-break:break-word !important; overflow-wrap:anywhere !important;
+    vertical-align:middle !important;
+  }
+  /* Summary Table (9 columns) print layout */
+  #summaryView table { font-size:8pt !important; }
+  #summaryView thead th, #summaryView tbody td { padding:4px 5px !important; line-height:1.3 !important; }
+  #summaryView thead th:nth-child(1), #summaryView tbody td:nth-child(1) { width:3.5% !important; text-align:center !important; }
+  #summaryView thead th:nth-child(2), #summaryView tbody td:nth-child(2) { width:11.5% !important; }
+  #summaryView thead th:nth-child(3), #summaryView tbody td:nth-child(3) { width:8% !important; }
+  #summaryView thead th:nth-child(4), #summaryView tbody td:nth-child(4) { width:9% !important; }
+  #summaryView thead th:nth-child(5), #summaryView tbody td:nth-child(5) { width:31% !important; min-width:0 !important; max-width:none !important; }
+  #summaryView thead th:nth-child(6), #summaryView tbody td:nth-child(6) { width:10.5% !important; text-align:right !important; }
+  #summaryView thead th:nth-child(7), #summaryView tbody td:nth-child(7) { width:5.5% !important; text-align:center !important; }
+  #summaryView thead th:nth-child(8), #summaryView tbody td:nth-child(8) { width:13.5% !important; }
+  #summaryView thead th:nth-child(9), #summaryView tbody td:nth-child(9) { width:7.5% !important; min-width:0 !important; }
+  #summaryView .badge { white-space:normal !important; font-size:7pt !important; padding:2px 5px !important; }
+  #summaryView .prog-bar { min-width:24px !important; }
+  /* Subplan Table (34 columns) print layout — all 34 columns fitted cleanly */
+  .s0-table { font-size:4.8pt !important; }
+  .s0-table thead th, .s0-table tbody td {
+    padding:2px 1.5px !important; font-size:4.8pt !important; line-height:1.15 !important;
+    min-width:0 !important; max-width:none !important;
+    white-space:normal !important; word-break:break-all !important; overflow-wrap:anywhere !important;
+  }
+  .s0-table thead th:nth-child(1), .s0-table tbody td:nth-child(1) { width:1.6% !important; }
+  .s0-table thead th:nth-child(2), .s0-table tbody td:nth-child(2) { width:3.2% !important; }
+  .s0-table thead th:nth-child(3), .s0-table tbody td:nth-child(3) { width:2.5% !important; }
+  .s0-table thead th:nth-child(4), .s0-table tbody td:nth-child(4) { width:2.2% !important; }
+  .s0-table thead th:nth-child(5), .s0-table tbody td:nth-child(5) { width:3.4% !important; }
+  .s0-table thead th:nth-child(6), .s0-table tbody td:nth-child(6) { width:2.8% !important; }
+  .s0-table thead th:nth-child(7), .s0-table tbody td:nth-child(7) { width:6.5% !important; word-break:break-word !important; }
+  .s0-table thead th:nth-child(8), .s0-table tbody td:nth-child(8) { width:3.1% !important; }
+  .s0-table thead th:nth-child(9), .s0-table tbody td:nth-child(9) { width:6.5% !important; word-break:break-word !important; }
+  .s0-table thead th:nth-child(10), .s0-table tbody td:nth-child(10) { width:3.1% !important; }
+  .s0-table thead th:nth-child(11), .s0-table tbody td:nth-child(11) { width:2.6% !important; }
+  .s0-table thead th:nth-child(12), .s0-table tbody td:nth-child(12) { width:5.8% !important; word-break:break-word !important; }
+  .s0-table thead th:nth-child(13), .s0-table tbody td:nth-child(13) { width:3.8% !important; }
+  .s0-table thead th:nth-child(26), .s0-table tbody td:nth-child(26) { width:4.5% !important; word-break:break-word !important; }
+  .s0-table .badge { white-space:normal !important; font-size:4.6pt !important; padding:1px 3px !important; border-radius:4px !important; }
+  .s0-table .badge-dot { width:4px !important; height:4px !important; }
+}
+
+/* Print Header (hidden on screen, visible on print/PDF) */
+#printHeader { display:none; }
+.ph-title { font-size:12pt; font-weight:800; color:#0f3d7a; line-height:1.3; }
+.ph-sub { font-size:8.5pt; color:#334155; margin-top:2px; line-height:1.35; }
+.ph-meta { font-size:8pt; color:#475569; margin-top:3px; display:flex; flex-wrap:wrap; gap:12px; }
+
+/* Print Button */
+.btn-print { background:rgba(236,72,153,0.28); color:#fff; border-color:rgba(244,114,182,0.55); }
+.btn-print:hover { background:rgba(236,72,153,0.45); }
+
+/* Multi-select Status Filter Dropdown */
+.ms-wrap { position:relative; display:-webkit-inline-flex; display:inline-flex; min-width:190px; }
+.ms-btn {
+  width:100%; text-align:left; display:-webkit-flex; display:flex;
+  -webkit-align-items:center; align-items:center; -webkit-justify-content:space-between; justify-content:space-between;
+  gap:6px; user-select:none; -webkit-user-select:none;
+}
+.ms-btn.has-sel { border-color:var(--primary); background-color:var(--primary-light); font-weight:700; color:var(--primary-dark); }
+.ms-btn-text { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; -webkit-flex:1; flex:1; }
+.ms-menu {
+  position:absolute; top:calc(100% + 5px); left:0; z-index:350;
+  width:310px; max-width:92vw; background:var(--white);
+  border:1.5px solid var(--gray-200); border-radius:var(--radius);
+  box-shadow:var(--shadow-lg); padding:8px;
+}
+.ms-menu.hidden { display:none; }
+.ms-actions {
+  display:-webkit-flex; display:flex; -webkit-justify-content:space-between; justify-content:space-between;
+  gap:6px; padding-bottom:7px; margin-bottom:6px; border-bottom:1px solid var(--gray-200);
+}
+.ms-act-btn {
+  -webkit-flex:1; flex:1; padding:5px 8px; font-size:0.74rem; font-weight:700;
+  border-radius:var(--radius-sm); border:1px solid var(--gray-200);
+  background:var(--gray-100); color:var(--gray-700); transition:background var(--tr);
+}
+.ms-act-btn:hover { background:var(--primary-light); color:var(--primary-dark); border-color:var(--primary); }
+.ms-list { max-height:280px; overflow-y:auto; -webkit-overflow-scrolling:touch; display:-webkit-flex; display:flex; -webkit-flex-direction:column; flex-direction:column; gap:2px; }
+.ms-item {
+  display:-webkit-flex; display:flex; -webkit-align-items:center; align-items:center;
+  gap:8px; padding:6px 8px; border-radius:var(--radius-sm); cursor:pointer;
+  font-size:0.79rem; color:var(--gray-800); transition:background var(--tr);
+  user-select:none; -webkit-user-select:none;
+}
+.ms-item:hover { background:var(--primary-light); }
+.ms-item input[type="checkbox"] {
+  width:15px; height:15px; accent-color:var(--primary); cursor:pointer; -webkit-flex-shrink:0; flex-shrink:0;
+}
+.ms-dot { width:8px; height:8px; border-radius:50%; -webkit-flex-shrink:0; flex-shrink:0; }
+.ms-lbl { -webkit-flex:1; flex:1; line-height:1.25; }
+.ms-cnt {
+  font-size:0.68rem; font-weight:700; color:var(--gray-600);
+  background:var(--gray-100); padding:1px 6px; border-radius:10px;
+}
+body.dark-mode .ms-menu { background:#1f2937; border-color:#374151; }
+body.dark-mode .ms-actions { border-bottom-color:#374151; }
+body.dark-mode .ms-act-btn { background:#374151; color:#e5e7eb; border-color:#4b5563; }
+body.dark-mode .ms-act-btn:hover { background:#1e3a5f; color:#93c5fd; }
+body.dark-mode .ms-item { color:#f3f4f6; }
+body.dark-mode .ms-item:hover { background:#1e3a5f; }
+body.dark-mode .ms-cnt { background:#374151; color:#d1d5db; }
+body.dark-mode .ms-btn.has-sel { background-color:#1e3a5f; color:#93c5fd; border-color:#60a5fa; }
+@media(max-width:640px){
+  .ms-wrap { -webkit-flex:1 1 calc(50% - 4px); flex:1 1 calc(50% - 4px); min-width:0; }
+}
+@media(max-width:380px){
+  .ms-wrap { -webkit-flex:1 1 100%; flex:1 1 100%; }
+}
 
 /* Dark mode toggle button */
 .theme-toggle {
@@ -513,7 +669,7 @@ body.dark-mode .s0-table td.s0-date { color:#d1d5db; }
 <div class="header-inner">
 <div aria-hidden="true" class="header-icon">📋</div>
 <div class="header-text">
-<h1>รายงานการติดตามจัดซื้อจัดจ้าง งบพ.ร.บ. งบลงทุน (ค่าครุภัณฑ์ ที่ดินและสิ่งก่อสร้าง) สชป.11 <span style="font-size:0.68rem;font-weight:600;background:rgba(255,255,255,0.18);padding:2px 8px;border-radius:12px;vertical-align:middle;margin-left:4px;white-space:nowrap">Ver. 4.4</span></h1>
+<h1>รายงานการติดตามจัดซื้อจัดจ้าง งบพ.ร.บ. งบลงทุน (ค่าครุภัณฑ์ ที่ดินและสิ่งก่อสร้าง) สชป.11 <span style="font-size:0.68rem;font-weight:600;background:rgba(255,255,255,0.18);padding:2px 8px;border-radius:12px;vertical-align:middle;margin-left:4px;white-space:nowrap">Ver. 4.5</span></h1>
 <p>สรุปตามรหัสงบประมาณและรหัสแผน — Real-time จาก Google Sheets | ปีงบประมาณ 2570</p>
 </div>
 <div class="header-right">
@@ -528,6 +684,9 @@ body.dark-mode .s0-table td.s0-date { color:#d1d5db; }
 <button aria-label="เปิดแดชบอร์ดสรุป" class="hdr-btn btn-dash" onclick="openDashboard()">
         📊 <span class="btn-label">สรุปแดชบอร์ด</span>
 </button>
+<button aria-label="พิมพ์หรือส่งออก PDF" class="hdr-btn btn-print" onclick="printReport()">
+        🖨️ <span class="btn-label">พิมพ์ / PDF</span>
+</button>
 <button aria-label="รีเฟรชข้อมูล" class="hdr-btn btn-refresh" id="refreshBtn" onclick="loadData()">
 <span class="spin-icon" id="spinIcon">🔄</span>
 <span class="btn-label">รีเฟรช</span>
@@ -537,6 +696,13 @@ body.dark-mode .s0-table td.s0-date { color:#d1d5db; }
 </header>
 <main>
 <div class="container">
+<!-- PRINT HEADER (แสดงเฉพาะตอนพิมพ์ / ส่งออก PDF) -->
+<div id="printHeader">
+  <div class="ph-title">รายงานการติดตามจัดซื้อจัดจ้าง งบพ.ร.บ. งบลงทุน (ค่าครุภัณฑ์ ที่ดินและสิ่งก่อสร้าง) สชป.11 (Ver. 4.5)</div>
+  <div class="ph-sub" id="phViewTitle">สรุปรายการโครงการหลัก — ปีงบประมาณ 2570</div>
+  <div class="ph-meta" id="phMeta"></div>
+</div>
+
 <div class="error-banner hidden" id="errorBanner" role="alert">⚠️ <span id="errorMsg"></span></div>
 
 <!-- ===== VIEW 1: SUMMARY TABLE (Sheet_0 (1)) ===== -->
@@ -547,21 +713,19 @@ body.dark-mode .s0-table td.s0-date { color:#d1d5db; }
 <svg aria-hidden="true" fill="none" height="14" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="14"><circle cx="11" cy="11" r="8"></circle><path d="M21 21l-4.35-4.35"></path></svg>
 <input aria-label="ค้นหา" autocomplete="off" autocorrect="off" id="searchInput" placeholder="ค้นหา รหัสงบประมาณ / รหัสแผน / หน่วยงาน / ชื่อโครงการ..." spellcheck="false" type="search"/>
 </div>
-<select aria-label="กรองตามสถานะ" class="ctrl-select" id="statusFilter">
-<option value="">ทุกสถานะ</option>
-<option value="A11.">A11 - จัดทำ PO</option>
-<option value="A10.">A10 - วันที่ลงนามสัญญา</option>
-<option value="A09.">A09 - ประกาศผู้ชนะ</option>
-<option value="A08.">A08 - อนุมัติสั่งซื้อสั่งจ้าง</option>
-<option value="A07.">A07 - รายงานผลพิจารณา</option>
-<option value="A06.">A06 - ประกาศเชิญชวน</option>
-<option value="A05.">A05 - ประกาศ TOR</option>
-<option value="A04.">A04 - รายงานขอซื้อขอจ้าง</option>
-<option value="A03.">A03 - รายงานความต้องการพัสดุ</option>
-<option value="A02.">A02 - ประกาศแผน</option>
-<option value="A01.">A01 - เห็นชอบแผน</option>
-<option value="A00.">ยังไม่เริ่มดำเนินการ</option>
-</select>
+<!-- Multi-Select Status Filter (Main View) -->
+<div class="ms-wrap" id="statusMultiWrap">
+  <button aria-expanded="false" aria-haspopup="listbox" class="ctrl-select ms-btn" id="statusMultiBtn" onclick="toggleStatusMenu('main', event)" type="button">
+    <span class="ms-btn-text" id="statusMultiLabel">ทุกสถานะ (เลือกได้หลายสถานะ)</span>
+  </button>
+  <div class="ms-menu hidden" id="statusMultiMenu" onclick="event.stopPropagation()">
+    <div class="ms-actions">
+      <button class="ms-act-btn" onclick="selectAllStatuses('main')" type="button">✓ เลือกทั้งหมด</button>
+      <button class="ms-act-btn" onclick="clearStatuses('main')" type="button">✕ ล้างที่เลือก</button>
+    </div>
+    <div class="ms-list" id="statusMultiList"></div>
+  </div>
+</div>
 <select aria-label="กรองตามหน่วยงาน" class="ctrl-select" id="unitFilter"><option value="">ทุกหน่วยงาน</option></select>
 <select aria-label="เรียงลำดับ" class="ctrl-select" id="sortSelect">
 <option value="code-asc">รหัสงบประมาณ ↑</option>
@@ -574,6 +738,7 @@ body.dark-mode .s0-table td.s0-date { color:#d1d5db; }
 <option value="unit-asc">หน่วยงาน (ก→ฮ)</option>
 <option value="unit-desc">หน่วยงาน (ฮ→ก)</option>
 </select>
+<button class="ctrl-select" id="mainClearBtn" onclick="clearMainFilters()" style="backgroundImage:none;padding:8px 12px;font-weight:600;color:var(--primary)" type="button">ล้างตัวกรอง</button>
 <span aria-live="polite" class="result-count" id="resultCount"></span>
 </div>
 <div aria-label="ตารางข้อมูลโครงการ" class="table-wrap" role="region">
@@ -608,6 +773,19 @@ body.dark-mode .s0-table td.s0-date { color:#d1d5db; }
 <div class="search-wrap">
 <svg aria-hidden="true" fill="none" height="14" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24" width="14"><circle cx="11" cy="11" r="8"></circle><path d="M21 21l-4.35-4.35"></path></svg>
 <input aria-label="ค้นหาในตาราง แผนย่อย" autocomplete="off" autocorrect="off" id="s0SearchInput" placeholder="ค้นหา รหัสงบประมาณ / รหัสแผน (ผ) / ชื่อโครงการ..." spellcheck="false" type="search"/>
+</div>
+<!-- Multi-Select Status Filter (Sheet_0 View) -->
+<div class="ms-wrap" id="s0StatusMultiWrap">
+  <button aria-expanded="false" aria-haspopup="listbox" class="ctrl-select ms-btn" id="s0StatusMultiBtn" onclick="toggleStatusMenu('s0', event)" type="button">
+    <span class="ms-btn-text" id="s0StatusMultiLabel">ทุกสถานะ (เลือกได้หลายสถานะ)</span>
+  </button>
+  <div class="ms-menu hidden" id="s0StatusMultiMenu" onclick="event.stopPropagation()">
+    <div class="ms-actions">
+      <button class="ms-act-btn" onclick="selectAllStatuses('s0')" type="button">✓ เลือกทั้งหมด</button>
+      <button class="ms-act-btn" onclick="clearStatuses('s0')" type="button">✕ ล้างที่เลือก</button>
+    </div>
+    <div class="ms-list" id="s0StatusMultiList"></div>
+  </div>
 </div>
 <select aria-label="กรองตามชื่อหน่วยงาน" class="ctrl-select" id="s0UnitFilter"><option value="">ทุกหน่วยงาน</option></select>
 <button class="ctrl-select" id="s0ClearBtn" onclick="clearSheet0Filters()" style="backgroundImage:none;padding:8px 12px;font-weight:600;color:var(--primary)" type="button">ล้างตัวกรอง</button>
@@ -668,7 +846,7 @@ body.dark-mode .s0-table td.s0-date { color:#d1d5db; }
 <footer>
   ข้อมูลจาก <a href="https://docs.google.com/spreadsheets/d/1pGGgMEfZYYiBqiO3zwOCXof8oZKExi6rIidmddgsVLQ/edit" rel="noopener noreferrer" target="_blank">Google Sheets (PMS)</a>
   | <a href="https://pages.github.com" rel="noopener noreferrer" target="_blank">GitHub Pages</a>
-  | Backend: Google Apps Script | <strong>Ver. 4.4</strong>
+  | Backend: Google Apps Script | <strong>Ver. 4.5</strong>
 </footer>
 <script crossorigin="anonymous" referrerpolicy="no-referrer" src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
@@ -696,7 +874,22 @@ var SC = {
 // STATUS_CODES เรียงจากสูงสุดไปต่ำสุด (label format ใหม่)
 var STATUS_CODES = ['A11.จัดทำ PO','A10.วันที่ลงนามสัญญา','A09.ประกาศผู้ชนะ','A08.อนุมัติสั่งซื้อสั่งจ้าง','A07.รายงานผลพิจารณา','A06.ประกาศเชิญชวน','A05.ประกาศ TOR','A04.รายงานขอซื้อขอจ้าง','A03.รายงานความต้องการพัสดุ','A02.ประกาศแผน','A01.เห็นชอบแผน','A00.จัดทำแผน(ยังไม่เริ่มดำเนินการจัดซื้อจัดจ้าง)',''];
 
-function getCode(s){ if(!s)return''; var m=s.match(/^(A\d{2})\./); return m?m[1]:''; }
+var STATUS_OPTIONS = [
+  {code:'A11', label:'A11 - จัดทำ PO', color:'#10b981'},
+  {code:'A10', label:'A10 - วันที่ลงนามสัญญา', color:'#065f46'},
+  {code:'A09', label:'A09 - ประกาศผู้ชนะ', color:'#9d174d'},
+  {code:'A08', label:'A08 - อนุมัติสั่งซื้อสั่งจ้าง', color:'#854d0e'},
+  {code:'A07', label:'A07 - รายงานผลพิจารณา', color:'#0f766e'},
+  {code:'A06', label:'A06 - ประกาศเชิญชวน', color:'#1d4ed8'},
+  {code:'A05', label:'A05 - ประกาศ TOR', color:'#7e22ce'},
+  {code:'A04', label:'A04 - รายงานขอซื้อขอจ้าง', color:'#c2410c'},
+  {code:'A03', label:'A03 - รายงานความต้องการพัสดุ', color:'#a16207'},
+  {code:'A02', label:'A02 - ประกาศแผน', color:'#15803d'},
+  {code:'A01', label:'A01 - เห็นชอบแผน', color:'#0369a1'},
+  {code:'A00', label:'A00 - ยังไม่เริ่มดำเนินการ', color:'#9ca3af'}
+];
+
+function getCode(s){ if(!s)return''; var m=String(s).match(/^(A\d{2})/); return m?m[1]:''; }
 function getCfg(s){
   if(SC[s]) return SC[s];
   var code = getCode(s);
@@ -712,6 +905,133 @@ function fmtM(n){ return (n/1e6).toFixed(2)+' M'; }
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 var ALL_DATA=[], SHEET0_DATA=[], sortKey='code-asc', isSheet0View=false;
+var selectedStatuses=[], s0SelectedStatuses=[];
+var lastFilteredMain=[], lastFilteredS0=[];
+
+// ===== MULTI-SELECT STATUS FILTER =====
+function extractStatusCode(rawStatus){
+  if(!rawStatus) return 'A00';
+  var m = String(rawStatus).trim().match(/^(A\d{2})/);
+  return m ? m[1] : 'A00';
+}
+
+function matchesMultiStatus(rawStatus, selArr){
+  if(!selArr || selArr.length === 0) return true;
+  var code = extractStatusCode(rawStatus);
+  return selArr.indexOf(code) >= 0;
+}
+
+function renderStatusMenus(){
+  var mainCounts = {}, s0Counts = {};
+  STATUS_OPTIONS.forEach(function(o){ mainCounts[o.code] = 0; s0Counts[o.code] = 0; });
+  ALL_DATA.forEach(function(r){
+    var c = extractStatusCode(r.สถานะสูงสุด);
+    mainCounts[c] = (mainCounts[c] || 0) + 1;
+  });
+  SHEET0_DATA.forEach(function(r){
+    var c = extractStatusCode(r.สถานะการจัดซื้อ);
+    s0Counts[c] = (s0Counts[c] || 0) + 1;
+  });
+
+  var mainList = document.getElementById('statusMultiList');
+  if(mainList){
+    mainList.innerHTML = STATUS_OPTIONS.map(function(o){
+      var checked = selectedStatuses.indexOf(o.code) >= 0 ? 'checked' : '';
+      return '<label class="ms-item">'+
+        '<input type="checkbox" value="'+o.code+'" '+checked+' onchange="onStatusCheckChange(\'main\',\''+o.code+'\',this.checked)"/>'+
+        '<span class="ms-dot" style="background:'+o.color+'"></span>'+
+        '<span class="ms-lbl">'+esc(o.label)+'</span>'+
+        '<span class="ms-cnt">'+(mainCounts[o.code]||0)+'</span>'+
+      '</label>';
+    }).join('');
+  }
+
+  var s0List = document.getElementById('s0StatusMultiList');
+  if(s0List){
+    s0List.innerHTML = STATUS_OPTIONS.map(function(o){
+      var checked = s0SelectedStatuses.indexOf(o.code) >= 0 ? 'checked' : '';
+      return '<label class="ms-item">'+
+        '<input type="checkbox" value="'+o.code+'" '+checked+' onchange="onStatusCheckChange(\'s0\',\''+o.code+'\',this.checked)"/>'+
+        '<span class="ms-dot" style="background:'+o.color+'"></span>'+
+        '<span class="ms-lbl">'+esc(o.label)+'</span>'+
+        '<span class="ms-cnt">'+(s0Counts[o.code]||0)+'</span>'+
+      '</label>';
+    }).join('');
+  }
+  updateStatusBtnLabel('main');
+  updateStatusBtnLabel('s0');
+}
+
+function updateStatusBtnLabel(mode){
+  var arr = mode === 's0' ? s0SelectedStatuses : selectedStatuses;
+  var btn = document.getElementById(mode === 's0' ? 's0StatusMultiBtn' : 'statusMultiBtn');
+  var lbl = document.getElementById(mode === 's0' ? 's0StatusMultiLabel' : 'statusMultiLabel');
+  if(!btn || !lbl) return;
+  if(arr.length === 0 || arr.length === STATUS_OPTIONS.length){
+    lbl.textContent = arr.length === STATUS_OPTIONS.length ? 'ทุกสถานะ (เลือกครบ 12 สถานะ)' : 'ทุกสถานะ (เลือกได้หลายสถานะ)';
+    if(arr.length === 0) btn.classList.remove('has-sel');
+    else btn.classList.add('has-sel');
+  } else if(arr.length <= 3){
+    lbl.textContent = 'สถานะ: ' + arr.join(', ');
+    btn.classList.add('has-sel');
+  } else {
+    lbl.textContent = 'เลือก ' + arr.length + ' สถานะ (' + arr.slice(0,2).join(', ') + ' +' + (arr.length-2) + ')';
+    btn.classList.add('has-sel');
+  }
+}
+
+function toggleStatusMenu(mode, e){
+  if(e) e.stopPropagation();
+  var targetMenu = document.getElementById(mode === 's0' ? 's0StatusMultiMenu' : 'statusMultiMenu');
+  var otherMenu  = document.getElementById(mode === 's0' ? 'statusMultiMenu' : 's0StatusMultiMenu');
+  if(otherMenu) otherMenu.classList.add('hidden');
+  if(targetMenu) targetMenu.classList.toggle('hidden');
+}
+
+function closeAllStatusMenus(){
+  var m1 = document.getElementById('statusMultiMenu');
+  var m2 = document.getElementById('s0StatusMultiMenu');
+  if(m1) m1.classList.add('hidden');
+  if(m2) m2.classList.add('hidden');
+}
+
+function onStatusCheckChange(mode, code, checked){
+  var arr = mode === 's0' ? s0SelectedStatuses : selectedStatuses;
+  var idx = arr.indexOf(code);
+  if(checked && idx < 0) arr.push(code);
+  if(!checked && idx >= 0) arr.splice(idx, 1);
+  // เรียงตามลำดับ STATUS_OPTIONS
+  var order = STATUS_OPTIONS.map(function(o){return o.code;});
+  arr.sort(function(a,b){ return order.indexOf(a) - order.indexOf(b); });
+  updateStatusBtnLabel(mode);
+  if(mode === 's0') applySheet0Filters();
+  else applyFilters();
+}
+
+function selectAllStatuses(mode){
+  var allCodes = STATUS_OPTIONS.map(function(o){ return o.code; });
+  if(mode === 's0') s0SelectedStatuses = allCodes;
+  else selectedStatuses = allCodes;
+  renderStatusMenus();
+  if(mode === 's0') applySheet0Filters();
+  else applyFilters();
+}
+
+function clearStatuses(mode){
+  if(mode === 's0') s0SelectedStatuses = [];
+  else selectedStatuses = [];
+  renderStatusMenus();
+  if(mode === 's0') applySheet0Filters();
+  else applyFilters();
+}
+
+function clearMainFilters(){
+  document.getElementById('searchInput').value = '';
+  document.getElementById('unitFilter').value = '';
+  selectedStatuses = [];
+  renderStatusMenus();
+  applyFilters();
+}
 
 function populateSheet0Units(){
   var s0Units=SHEET0_DATA.map(function(d){return d.หน่วยงาน;}).filter(Boolean);
@@ -756,11 +1076,13 @@ function loadData(){
       units.forEach(function(u){ var o=document.createElement('option'); o.value=u; o.textContent=u; if(u===cur)o.selected=true; unitSel.appendChild(o); });
       var d=new Date(result.updatedAt);
       document.getElementById('lastUpdate').textContent='อัปเดต '+d.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+      renderStatusMenus();
       applyFilters();
       if(isSheet0View) applySheet0Filters();
     } catch(err) {
       document.getElementById('errorMsg').textContent='ไม่สามารถดึงข้อมูลได้: '+err.message;
       errBanner.classList.remove('hidden');
+      renderStatusMenus();
       if(ALL_DATA.length>0) applyFilters();
       if(isSheet0View) applySheet0Filters();
     }
@@ -789,6 +1111,7 @@ function loadSheet0Fallback(){
     if(res && res.success && Array.isArray(res.data)){
       SHEET0_DATA = res.data;
       populateSheet0Units();
+      renderStatusMenus();
       if(isSheet0View) applySheet0Filters();
     }
   };
@@ -805,7 +1128,7 @@ function renderStats(data){
   var totalB=data.reduce(function(s,d){return s+(d.วงเงินงบประมาณทั้งโครงการ||0);},0);
   var done=data.filter(function(d){return (d.สถานะสูงสุด||'').indexOf('A11.')===0;}).length;
   var inProg=data.filter(function(d){var s=d.สถานะสูงสุด||'';return s&&s.indexOf('A11.')!==0&&s.indexOf('A00.')!==0;}).length;
-  var none=data.filter(function(d){return (d.สถานะสูงสุด||'').indexOf('A00.')===0;}).length;
+  var none=data.filter(function(d){return !d.สถานะสูงสุด||(d.สถานะสูงสุด||'').indexOf('A00.')===0;}).length;
   document.getElementById('statsGrid').innerHTML=
     '<div class="stat-card"><div class="stat-icon si-blue">📁</div><div><div class="stat-value">'+total.toLocaleString()+'</div><div class="stat-label">โครงการทั้งหมด</div></div></div>'+
     '<div class="stat-card"><div class="stat-icon si-purple">💰</div><div><div class="stat-value" style="font-size:clamp(0.85rem,2vw,1rem)">'+fmtM(totalB)+'</div><div class="stat-label">วงเงินรวม (บาท)</div></div></div>'+
@@ -817,7 +1140,7 @@ function renderStats(data){
 function renderTable(data){
   var tbody=document.getElementById('tableBody');
   var noR=document.getElementById('noResults');
-  document.getElementById('resultCount').textContent='แสดง '+data.length+' รายการ';
+  document.getElementById('resultCount').textContent='แสดง '+data.length+' จาก '+ALL_DATA.length+' โครงการ';
   if(!data.length){tbody.innerHTML='';noR.style.display='block';return;}
   noR.style.display='none';
   tbody.innerHTML=data.map(function(row,i){
@@ -845,7 +1168,6 @@ function renderTable(data){
 
 function applyFilters(){
   var search=document.getElementById('searchInput').value.toLowerCase().trim();
-  var statusF=document.getElementById('statusFilter').value;
   var unitF=document.getElementById('unitFilter').value;
   var parts=sortKey.split('-'); var sk=parts[0]; var sd=parts[1];
   var filtered=ALL_DATA.filter(function(row){
@@ -854,7 +1176,7 @@ function applyFilters(){
       (row.รหัสแผน||'').toLowerCase().indexOf(search)>=0||
       (row.หน่วยงาน||'').toLowerCase().indexOf(search)>=0||
       (row.ชื่อโครงการ||'').toLowerCase().indexOf(search)>=0;
-    var mst=!statusF||((row.สถานะสูงสุด||'').indexOf(statusF)===0);
+    var mst=matchesMultiStatus(row.สถานะสูงสุด, selectedStatuses);
     var mu=!unitF||row.หน่วยงาน===unitF;
     return ms&&mst&&mu;
   });
@@ -869,12 +1191,15 @@ function applyFilters(){
     if(va>vb)return sd==='asc'?1:-1;
     return 0;
   });
+  lastFilteredMain = filtered;
   renderStats(filtered);
   renderTable(filtered);
+  if(!isSheet0View) updatePrintHeader();
 }
 
 // ===== SHEET_0 TABLE VIEW =====
 function toggleSheet0View(forceState){
+  closeAllStatusMenus();
   isSheet0View = typeof forceState === 'boolean' ? forceState : !isSheet0View;
   var sumView = document.getElementById('summaryView');
   var s0View  = document.getElementById('sheet0View');
@@ -891,18 +1216,23 @@ function toggleSheet0View(forceState){
     sumView.classList.remove('view-hidden');
     btn.classList.remove('active');
     lbl.textContent = 'ตาราง แผนย่อย';
+    updatePrintHeader();
   }
 }
 
 function openSheet0ForPlan(planCode){
   document.getElementById('s0SearchInput').value = planCode || '';
   document.getElementById('s0UnitFilter').value = '';
+  s0SelectedStatuses = [];
+  renderStatusMenus();
   toggleSheet0View(true);
 }
 
 function clearSheet0Filters(){
   document.getElementById('s0SearchInput').value = '';
   document.getElementById('s0UnitFilter').value = '';
+  s0SelectedStatuses = [];
+  renderStatusMenus();
   applySheet0Filters();
 }
 
@@ -914,10 +1244,64 @@ function applySheet0Filters(){
       (row.รหัสงบประมาณ||'').toLowerCase().indexOf(search)>=0 ||
       (row.รหัสแผน||'').toLowerCase().indexOf(search)>=0 ||
       (row.ชื่อโครงการ||'').toLowerCase().indexOf(search)>=0;
+    var mst = matchesMultiStatus(row.สถานะการจัดซื้อ, s0SelectedStatuses);
     var mu = !unitF || row.หน่วยงาน === unitF;
-    return ms && mu;
+    return ms && mst && mu;
   });
+  lastFilteredS0 = filtered;
   renderSheet0Table(filtered);
+  if(isSheet0View) updatePrintHeader();
+}
+
+// ===== PRINT / EXPORT PDF =====
+function updatePrintHeader(){
+  var phView = document.getElementById('phViewTitle');
+  var phMeta = document.getElementById('phMeta');
+  if(!phView || !phMeta) return;
+  var now = new Date();
+  var dtStr = now.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'}) + ' เวลา ' + now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+
+  if(!isSheet0View){
+    var unitF = document.getElementById('unitFilter').value || 'ทุกหน่วยงาน';
+    var stF   = (selectedStatuses.length === 0 || selectedStatuses.length === STATUS_OPTIONS.length) ? 'ทุกสถานะ' : selectedStatuses.join(', ');
+    var kw    = document.getElementById('searchInput').value.trim() || '-';
+    var totalB = lastFilteredMain.reduce(function(s,d){return s+(d.วงเงินงบประมาณทั้งโครงการ||0);},0);
+    phView.textContent = 'สรุปรายการโครงการหลัก — ปีงบประมาณ 2570';
+    phMeta.innerHTML =
+      '<span><strong>หน่วยงาน:</strong> '+esc(unitF)+'</span>'+
+      '<span><strong>สถานะที่เลือก:</strong> '+esc(stF)+'</span>'+
+      '<span><strong>คำค้นหา:</strong> '+esc(kw)+'</span>'+
+      '<span><strong>จำนวนที่แสดง:</strong> '+lastFilteredMain.length.toLocaleString()+' โครงการ</span>'+
+      '<span><strong>วงเงินรวม:</strong> '+fmtB(totalB)+' บาท</span>'+
+      '<span><strong>พิมพ์เมื่อ:</strong> '+esc(dtStr)+'</span>';
+  } else {
+    var s0UnitF = document.getElementById('s0UnitFilter').value || 'ทุกหน่วยงาน';
+    var s0StF   = (s0SelectedStatuses.length === 0 || s0SelectedStatuses.length === STATUS_OPTIONS.length) ? 'ทุกสถานะ' : s0SelectedStatuses.join(', ');
+    var s0Kw    = document.getElementById('s0SearchInput').value.trim() || '-';
+    var s0TotalB = lastFilteredS0.reduce(function(s,d){return s+(d.วงเงินแผนย่อย||0);},0);
+    phView.textContent = 'ตาราง แผนย่อย (รายละเอียดทุกขั้นตอน A01–A11, สัญญา และ PO) — ปีงบประมาณ 2570';
+    phMeta.innerHTML =
+      '<span><strong>หน่วยงาน:</strong> '+esc(s0UnitF)+'</span>'+
+      '<span><strong>สถานะที่เลือก:</strong> '+esc(s0StF)+'</span>'+
+      '<span><strong>คำค้นหา:</strong> '+esc(s0Kw)+'</span>'+
+      '<span><strong>จำนวนที่แสดง:</strong> '+lastFilteredS0.length.toLocaleString()+' แผนย่อย</span>'+
+      '<span><strong>วงเงินแผนย่อยรวม:</strong> '+fmtMoneyOpt(s0TotalB)+' บาท</span>'+
+      '<span><strong>พิมพ์เมื่อ:</strong> '+esc(dtStr)+'</span>';
+  }
+}
+
+function printReport(){
+  closeAllStatusMenus();
+  updatePrintHeader();
+  // รีเซ็ตตำแหน่ง scroll ของตารางก่อนพิมพ์ เพื่อป้องกันหัวตารางคลาดเคลื่อนบนบางเบราว์เซอร์
+  var sc1 = document.querySelector('.table-scroll');
+  var sc2 = document.querySelector('.s0-table-scroll');
+  if(sc1){ sc1.scrollTop = 0; sc1.scrollLeft = 0; }
+  if(sc2){ sc2.scrollTop = 0; sc2.scrollLeft = 0; }
+  window.scrollTo(0, 0);
+  setTimeout(function(){
+    window.print();
+  }, 80);
 }
 
 function renderSheet0Table(data){
@@ -929,7 +1313,7 @@ function renderSheet0Table(data){
     tbody.innerHTML = '';
     noR.style.display = 'block';
     noMsg.textContent = SHEET0_DATA.length === 0
-      ? 'ยังไม่มีข้อมูลตาราง แผนย่อย (กรุณาอัปเดตและ Deploy Code.gs เวอร์ชัน 4.2 บน Google Apps Script)'
+      ? 'ยังไม่มีข้อมูลตาราง แผนย่อย (กรุณาอัปเดตและ Deploy Code.gs เวอร์ชัน 4.2+ บน Google Apps Script)'
       : 'ไม่พบข้อมูลแผนย่อยที่ตรงกับเงื่อนไขการค้นหา';
     return;
   }
@@ -980,13 +1364,23 @@ function renderSheet0Table(data){
 }
 
 document.getElementById('searchInput').addEventListener('input',applyFilters);
-document.getElementById('statusFilter').addEventListener('change',applyFilters);
 document.getElementById('unitFilter').addEventListener('change',applyFilters);
 document.getElementById('sortSelect').addEventListener('change',function(e){sortKey=e.target.value;applyFilters();});
 document.getElementById('s0SearchInput').addEventListener('input',applySheet0Filters);
 document.getElementById('s0UnitFilter').addEventListener('change',applySheet0Filters);
-document.addEventListener('keydown',function(e){if(e.key==='Escape') closeDashboard();});
+document.addEventListener('click',function(){ closeAllStatusMenus(); });
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    closeAllStatusMenus();
+    closeDashboard();
+  }
+});
+window.addEventListener('beforeprint', function(){
+  closeAllStatusMenus();
+  updatePrintHeader();
+});
 document.getElementById('dashModal').addEventListener('click',function(e){if(e.target===this) closeDashboard();});
+renderStatusMenus();
 
 // ===== DONUT CHART (SVG) =====
 function buildDonut(segments, total){
